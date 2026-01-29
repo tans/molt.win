@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="zh-CN">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>molt.win · Molt 小主机</title>
+        <meta
+            name="description"
+            content="molt.win Molt 小主机，预装 Windows 与最新版 Moltbot，接入微信控制。售价 699，原价 999。"
+        />
+        <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+        <meta name="theme-color" content="#ff4d4d" />
+        <link rel="preconnect" href="https://api.fontshare.com" />
+        <link rel="preconnect" href="https://cdn.fontshare.com" crossorigin />
+        <link
+            href="https://api.fontshare.com/v2/css?f[]=clash-display@600,700&f[]=satoshi@400,500,700&display=swap"
+            rel="stylesheet"
+        />
+        <style>
+            :root {
+                color-scheme: light;
+                --bg: #ffffff;
+                --card: #ffffff;
+                --border: #e6e8ef;
+                --text: #101318;
+                --muted: #6b7385;
+                --accent: #ff4d4d;
+                --accent-soft: rgba(255, 77, 77, 0.12);
+                --font-display: "Clash Display", system-ui, sans-serif;
+                --font-body: "Satoshi", system-ui, sans-serif;
+            }
+
+            * {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+
+            body {
+                min-height: 100vh;
+                background: var(--bg);
+                color: var(--text);
+                font-family: var(--font-body);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: clamp(16px, 4vw, 40px);
+            }
+
+            .card {
+                width: min(640px, 100%);
+                background: var(--card);
+                border-radius: 24px;
+                border: 1px solid var(--border);
+                box-shadow: 0 18px 40px rgba(14, 18, 30, 0.08);
+                padding: clamp(20px, 5vw, 36px);
+                display: grid;
+                gap: 18px;
+            }
+
+            .brand-row {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+
+            .logo {
+                width: 32px;
+                height: 32px;
+                display: inline-block;
+            }
+
+            .brand {
+                font-family: var(--font-display);
+                letter-spacing: 0.18em;
+                text-transform: uppercase;
+                font-size: 12px;
+                color: var(--muted);
+            }
+
+            h1 {
+                font-family: var(--font-display);
+                font-size: clamp(26px, 5vw, 36px);
+                line-height: 1.2;
+            }
+
+            .tagline {
+                color: var(--muted);
+                font-size: 15px;
+            }
+
+            .price {
+                display: flex;
+                align-items: baseline;
+                gap: 12px;
+                flex-wrap: wrap;
+            }
+
+            .price .current {
+                font-family: var(--font-display);
+                font-size: clamp(34px, 7vw, 48px);
+                color: var(--accent);
+            }
+
+            .price .original {
+                color: var(--muted);
+                text-decoration: line-through;
+                font-size: 14px;
+            }
+
+            .product {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .product img {
+                width: min(420px, 100%);
+                height: auto;
+                display: block;
+                border-radius: 18px;
+            }
+
+            .specs {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+
+            .spec {
+                padding: 8px 14px;
+                border-radius: 999px;
+                border: 1px solid var(--border);
+                background: #f7f8fc;
+                color: var(--muted);
+                font-size: 13px;
+            }
+
+            .cta {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 12px;
+                flex-wrap: wrap;
+                border-top: 1px solid var(--border);
+                padding-top: 12px;
+            }
+
+            .cta .pill {
+                padding: 8px 14px;
+                border-radius: 999px;
+                background: var(--accent);
+                color: #ffffff;
+                font-size: 12px;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+                font-weight: 600;
+            }
+
+            .cta .hint {
+                font-size: 12px;
+                color: var(--muted);
+            }
+        </style>
+    </head>
+    <body>
+        <main class="card">
+            <div class="brand-row">
+                <img class="logo" src="favicon.svg" alt="molt.win logo" />
+                <div class="brand">molt.win</div>
+            </div>
+            <h1>一个 Molt 小主机</h1>
+            <p class="tagline">预装 Windows 与最新版 Moltbot，接入微信控制。</p>
+
+            <div class="price">
+                <span class="current">¥699</span>
+                <span class="original">原价 ¥999</span>
+            </div>
+
+            <div class="product">
+                <img src="product.png" alt="Molt 小主机 产品图" />
+            </div>
+
+            <div class="specs">
+                <span class="spec">8G 内存</span>
+                <span class="spec">128G M2 固态</span>
+                <span class="spec">微信控制</span>
+                <span class="spec">开箱即用</span>
+            </div>
+
+            <div class="cta">
+                <span class="pill">购买客服</span>
+                <span class="hint">tianshe00</span>
+            </div>
+        </main>
+    </body>
+</html>
