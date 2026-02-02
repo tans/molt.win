@@ -3,10 +3,10 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>xiake.shop · openclaw 小主机</title>
+        <title>xiake.shop · 虾壳 2.0 小主机</title>
         <meta
             name="description"
-            content="xiake.shop openclaw 小主机，预装 Windows 与最新版 openclawbot，接入微信控制。售价 699，原价 999。"
+            content="xiake.shop 虾壳 2.0 小主机，预装 Windows 与最新版 openclawbot，支持微信控制。售价 699，原价 999。"
         />
         <link rel="icon" href="favicon.svg" type="image/svg+xml" />
         <meta name="theme-color" content="#ff4d4d" />
@@ -126,20 +126,182 @@
                 border-radius: 18px;
             }
 
-            .specs {
+            .config-grid {
+                display: grid;
+                gap: 12px;
+            }
+
+            .config-card {
+                border-radius: 18px;
+                border: 1px solid var(--border);
+                background: #f7f8fc;
+                padding: 14px;
+                display: grid;
+                gap: 10px;
+            }
+
+            .config-head {
+                display: flex;
+                align-items: baseline;
+                justify-content: space-between;
+                gap: 12px;
+                flex-wrap: wrap;
+            }
+
+            .config-title {
+                font-family: var(--font-display);
+                font-size: 16px;
+                font-weight: 600;
+            }
+
+            .config-price {
+                font-family: var(--font-display);
+                font-size: 18px;
+                color: var(--accent);
+                font-weight: 600;
+            }
+
+            .config-list {
+                display: grid;
+                gap: 6px;
+                color: var(--muted);
+                font-size: 13px;
+                line-height: 1.6;
+            }
+
+            .config-item {
+                display: flex;
+                justify-content: space-between;
+                gap: 12px;
+                flex-wrap: wrap;
+            }
+
+            .config-label {
+                color: var(--text);
+                font-weight: 600;
+            }
+
+            .config-note {
+                font-size: 12px;
+                color: var(--muted);
+            }
+
+            .section-title {
+                font-family: var(--font-display);
+                font-size: 18px;
+                font-weight: 600;
+            }
+
+            .order {
+                display: grid;
+                gap: 14px;
+                padding: 16px;
+                border-radius: 18px;
+                border: 1px solid var(--border);
+                background: #f7f8fc;
+            }
+
+            .form {
+                display: grid;
+                gap: 12px;
+            }
+
+            .field {
+                display: grid;
+                gap: 6px;
+            }
+
+            .field label {
+                font-size: 11px;
+                letter-spacing: 0.12em;
+                text-transform: uppercase;
+                color: var(--muted);
+                font-weight: 600;
+            }
+
+            .field input,
+            .field textarea {
+                border: 1px solid var(--border);
+                border-radius: 12px;
+                padding: 12px 14px;
+                font-family: var(--font-body);
+                font-size: 15px;
+                background: #ffffff;
+                transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            }
+
+            .field input:focus,
+            .field textarea:focus {
+                outline: none;
+                border-color: var(--accent);
+                box-shadow: 0 0 0 3px var(--accent-soft);
+            }
+
+            .field textarea {
+                min-height: 88px;
+                resize: vertical;
+            }
+
+            .actions {
                 display: flex;
                 flex-wrap: wrap;
                 gap: 10px;
             }
 
-            .spec {
-                padding: 8px 14px;
-                border-radius: 999px;
+            .button,
+            .link-button {
+                border-radius: 12px;
+                padding: 12px 16px;
+                font-weight: 600;
+                font-size: 14px;
+                border: none;
+                cursor: pointer;
+                transition: transform 0.2s ease, box-shadow 0.2s ease;
+            }
+
+            .button:active,
+            .link-button:active {
+                transform: translateY(1px);
+            }
+
+            .button.primary {
+                background: var(--accent);
+                color: #ffffff;
+                box-shadow: 0 12px 20px rgba(255, 77, 77, 0.2);
+            }
+
+            .button.secondary {
+                background: #ffffff;
+                color: var(--text);
                 border: 1px solid var(--border);
-                background: #f7f8fc;
+            }
+
+            .button:disabled {
+                cursor: not-allowed;
+                opacity: 0.6;
+                box-shadow: none;
+            }
+
+            .link-button {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                text-decoration: none;
+            }
+
+            .pay-panel {
+                display: grid;
+                gap: 12px;
+                padding: 12px;
+                border-radius: 14px;
+                border: 1px solid var(--border);
+                background: #ffffff;
+            }
+
+            .status {
+                font-size: 12px;
                 color: var(--muted);
-                font-size: 12.5px;
-                font-weight: 500;
+                min-height: 18px;
             }
 
             .cta {
@@ -175,10 +337,10 @@
                 <img class="logo" src="favicon.svg" alt="xiake.shop logo" />
                 <div class="brand">xiake.shop｜虾壳商店</div>
             </div>
-            <h1>虾壳 - openclaw小主机</h1>
+            <h1>虾壳 2.0 小主机</h1>
 
             <p class="tagline">
-                预装 Windows 与最新版 openclaw，增加微信控制。
+                预装 Windows 与最新版 openclaw，支持微信控制。
             </p>
             <div class="price">
                 <span class="current">¥699</span>
@@ -186,20 +348,218 @@
             </div>
 
             <div class="product">
-                <img src="product.png" alt="openclaw 小主机 产品图" />
+                <img src="product2.png" alt="openclaw 小主机 产品图" />
             </div>
 
-            <div class="specs">
-                <span class="spec">i3双核8G内存</span>
-                <span class="spec">128G M2固态</span>
-                <span class="spec">微信控制</span>
-                <span class="spec">开箱即用</span>
+            <div class="config-grid">
+                <div class="config-card">
+                    <div class="config-head">
+                        <span class="config-title">标准版</span>
+                    </div>
+                    <div class="config-list">
+                        <div class="config-item">
+                            <span class="config-label">处理器</span>
+                            <span>i3 双核</span>
+                        </div>
+                        <div class="config-item">
+                            <span class="config-label">内存</span>
+                            <span>8G</span>
+                        </div>
+                        <div class="config-item">
+                            <span class="config-label">存储</span>
+                            <span>128G M.2 固态</span>
+                        </div>
+                        <div class="config-item">
+                            <span class="config-label">系统</span>
+                            <span>预装 Windows + openclaw</span>
+                        </div>
+                        <div class="config-item">
+                            <span class="config-label">控制</span>
+                            <span>微信控制</span>
+                        </div>
+                        <div class="config-item">
+                            <span class="config-label">配件</span>
+                            <span>含电源 + WiFi</span>
+                        </div>
+                    </div>
+                </div>
             </div>
+
+            <section class="order" id="order">
+                <div class="section-title">填写收货信息并支付</div>
+                <p class="tagline">填写手机、收货地址与称呼后，可直接跳转支付或复制订单信息给客服。</p>
+                <form class="form" id="order-form">
+                    <div class="field">
+                        <label for="salutation">称呼</label>
+                        <input
+                            id="salutation"
+                            name="salutation"
+                            type="text"
+                            placeholder="例如：张先生 / 李女士"
+                            autocomplete="name"
+                            required
+                        />
+                    </div>
+                    <div class="field">
+                        <label for="phone">手机</label>
+                        <input
+                            id="phone"
+                            name="phone"
+                            type="tel"
+                            inputmode="tel"
+                            placeholder="例如：13800001111"
+                            autocomplete="tel"
+                            required
+                        />
+                    </div>
+                    <div class="field">
+                        <label for="address">收货地址</label>
+                        <textarea
+                            id="address"
+                            name="address"
+                            placeholder="省市区 + 详细地址 + 快递备注"
+                            autocomplete="street-address"
+                            required
+                        ></textarea>
+                    </div>
+                </form>
+
+                <div
+                    class="pay-panel"
+                    data-onepay-base="https://onepay.minapp.xin"
+                    data-redirect-url=""
+                    data-notify-url=""
+                >
+                    <div class="actions">
+                        <button class="button primary" type="button" id="pay-button">下单并去支付</button>
+                    </div>
+                    <div class="status" id="order-status" role="status"></div>
+                </div>
+
+            </section>
 
             <div class="cta">
                 <span class="pill">购买客服</span>
                 <span class="hint">tianshe00</span>
             </div>
         </main>
+        <script>
+            const form = document.getElementById("order-form");
+            const statusEl = document.getElementById("order-status");
+            const payBtn = document.getElementById("pay-button");
+            const payPanel = document.querySelector(".pay-panel");
+
+            const priceFen = 69900;
+            const productTitle = "虾壳 2.0 小主机";
+            const baseUrl = (payPanel.dataset.onepayBase || "").replace(/\/$/, "");
+            const fallbackRedirectUrl = `${window.location.origin}${window.location.pathname}?paid=1`;
+            const redirectUrl = payPanel.dataset.redirectUrl || fallbackRedirectUrl;
+            const notifyUrl = payPanel.dataset.notifyUrl || "";
+
+            let currentOutTradeNo = "";
+
+            const setStatus = (text) => {
+                statusEl.textContent = text;
+            };
+
+            const setButtonState = (loading) => {
+                payBtn.disabled = loading;
+                payBtn.textContent = loading ? "正在创建订单..." : "下单并去支付";
+            };
+
+            const createOutTradeNo = () =>
+                `XK${Date.now()}${Math.floor(100 + Math.random() * 900)}`;
+
+            const createOrder = async () => {
+                const payload = {
+                    fee: priceFen,
+                    title: productTitle,
+                    redirectUrl,
+                    outTradeNo: currentOutTradeNo,
+                    fields: ["ship"],
+                };
+                if (notifyUrl) {
+                    payload.notifyUrl = notifyUrl;
+                }
+                const response = await fetch(`${baseUrl}/api/create-order`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload),
+                });
+                if (!response.ok) {
+                    throw new Error("create-order failed");
+                }
+                return response.json();
+            };
+
+            const updateOrder = async (id) => {
+                const payload = {
+                    id,
+                    ship: {
+                        name: form.salutation.value.trim(),
+                        phone: form.phone.value.trim(),
+                        address: form.address.value.trim(),
+                    },
+                };
+                const response = await fetch(`${baseUrl}/api/update-order`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload),
+                });
+                if (!response.ok) {
+                    throw new Error("update-order failed");
+                }
+            };
+
+            form.addEventListener("input", () => {
+                setStatus("");
+            });
+
+            payBtn.addEventListener("click", async () => {
+                if (!form.checkValidity()) {
+                    form.reportValidity();
+                    setStatus("请先完整填写收货信息。");
+                    return;
+                }
+
+                currentOutTradeNo = createOutTradeNo();
+                setButtonState(true);
+                setStatus("正在创建订单...");
+
+                try {
+                    const data = await createOrder();
+                    const order = data.order || {};
+                    const orderId = order.id || order._id || data.id;
+                    const paymentUrl = data.paymentUrl || data.payUrl || order.paymentUrl;
+
+                    if (orderId) {
+                        try {
+                            await updateOrder(orderId);
+                        } catch (error) {
+                            setStatus("订单已创建，收货信息保存失败，请联系微信客服补充。");
+                        }
+                    }
+
+                    if (!paymentUrl) {
+                        throw new Error("missing paymentUrl");
+                    }
+
+                    const targetUrl = new URL(
+                        paymentUrl,
+                        baseUrl || window.location.origin
+                    ).toString();
+                    setStatus("订单已创建，正在跳转支付页...");
+                    window.location.href = targetUrl;
+                } catch (error) {
+                    setStatus("下单失败，请稍后重试或联系微信客服。");
+                    setButtonState(false);
+                }
+            });
+
+            if (new URLSearchParams(window.location.search).get("paid") === "1") {
+                setStatus("已完成支付，请把订单信息发给客服确认发货。");
+            }
+
+        </script>
     </body>
 </html>
