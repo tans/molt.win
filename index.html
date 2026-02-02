@@ -201,45 +201,16 @@
                 background: #f7f8fc;
             }
 
-            .form {
-                display: grid;
-                gap: 12px;
-            }
-
-            .field {
+            .info-note {
                 display: grid;
                 gap: 6px;
-            }
-
-            .field label {
-                font-size: 11px;
-                letter-spacing: 0.12em;
-                text-transform: uppercase;
-                color: var(--muted);
-                font-weight: 600;
-            }
-
-            .field input,
-            .field textarea {
-                border: 1px solid var(--border);
+                padding: 12px;
                 border-radius: 12px;
-                padding: 12px 14px;
-                font-family: var(--font-body);
-                font-size: 15px;
+                border: 1px solid var(--border);
                 background: #ffffff;
-                transition: border-color 0.2s ease, box-shadow 0.2s ease;
-            }
-
-            .field input:focus,
-            .field textarea:focus {
-                outline: none;
-                border-color: var(--accent);
-                box-shadow: 0 0 0 3px var(--accent-soft);
-            }
-
-            .field textarea {
-                min-height: 88px;
-                resize: vertical;
+                font-size: 13px;
+                color: var(--muted);
+                line-height: 1.6;
             }
 
             .actions {
@@ -386,43 +357,11 @@
             </div>
 
             <section class="order" id="order">
-                <div class="section-title">填写收货信息并支付</div>
-                <p class="tagline">填写手机、收货地址与称呼后，可直接跳转支付或复制订单信息给客服。</p>
-                <form class="form" id="order-form">
-                    <div class="field">
-                        <label for="salutation">称呼</label>
-                        <input
-                            id="salutation"
-                            name="salutation"
-                            type="text"
-                            placeholder="例如：张先生 / 李女士"
-                            autocomplete="name"
-                            required
-                        />
-                    </div>
-                    <div class="field">
-                        <label for="phone">手机</label>
-                        <input
-                            id="phone"
-                            name="phone"
-                            type="tel"
-                            inputmode="tel"
-                            placeholder="例如：13800001111"
-                            autocomplete="tel"
-                            required
-                        />
-                    </div>
-                    <div class="field">
-                        <label for="address">收货地址</label>
-                        <textarea
-                            id="address"
-                            name="address"
-                            placeholder="省市区 + 详细地址 + 快递备注"
-                            autocomplete="street-address"
-                            required
-                        ></textarea>
-                    </div>
-                </form>
+                <div class="section-title">支付并填写收货信息</div>
+                <p class="tagline">点击支付后将在支付页填写称呼、手机与收货地址。</p>
+                <div class="info-note">
+                    支付页会引导填写称呼、手机与收货地址，完成后即可付款。
+                </div>
 
                 <div
                     class="pay-panel"
@@ -444,7 +383,6 @@
             </div>
         </main>
         <script>
-            const form = document.getElementById("order-form");
             const statusEl = document.getElementById("order-status");
             const payBtn = document.getElementById("pay-button");
             const payPanel = document.querySelector(".pay-panel");
@@ -470,55 +408,9 @@
             const createOutTradeNo = () =>
                 `XK${Date.now()}${Math.floor(100 + Math.random() * 900)}`;
 
-            const createOrder = async () => {
-                const payload = {
-                    fee: priceFen,
-                    title: productTitle,
-                    redirectUrl,
-                    outTradeNo: currentOutTradeNo,
-                    fields: ["ship"],
-                };
-                if (notifyUrl) {
-                    payload.notifyUrl = notifyUrl;
-                }
-                const response = await fetch(`${baseUrl}/api/create-order`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(payload),
-                });
-                if (!response.ok) {
-                    throw new Error("create-order failed");
-                }
-                return response.json();
-            };
-
-            const updateOrder = async (id) => {
-                const payload = {
-                    id,
-                    ship: {
-                        name: form.salutation.value.trim(),
-                        phone: form.phone.value.trim(),
-                        address: form.address.value.trim(),
-                    },
-                };
-                const response = await fetch(`${baseUrl}/api/update-order`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(payload),
-                });
-                if (!response.ok) {
-                    throw new Error("update-order failed");
-                }
-            };
-
-            form.addEventListener("input", () => {
-                setStatus("");
-            });
-
             payBtn.addEventListener("click", async () => {
-                if (!form.checkValidity()) {
-                    form.reportValidity();
-                    setStatus("请先完整填写收货信息。");
+                if (!baseUrl) {
+                    setStatus("请先配置支付服务地址。");
                     return;
                 }
 
@@ -527,28 +419,18 @@
                 setStatus("正在创建订单...");
 
                 try {
-                    const data = await createOrder();
-                    const order = data.order || {};
-                    const orderId = order.id || order._id || data.id;
-                    const paymentUrl = data.paymentUrl || data.payUrl || order.paymentUrl;
-
-                    if (orderId) {
-                        try {
-                            await updateOrder(orderId);
-                        } catch (error) {
-                            setStatus("订单已创建，收货信息保存失败，请联系微信客服补充。");
-                        }
+                    const params = new URLSearchParams({
+                        fee: String(priceFen),
+                        redirectUrl,
+                        title: productTitle,
+                        fields: "ship",
+                        outTradeNo: currentOutTradeNo,
+                    });
+                    if (notifyUrl) {
+                        params.set("notifyUrl", notifyUrl);
                     }
-
-                    if (!paymentUrl) {
-                        throw new Error("missing paymentUrl");
-                    }
-
-                    const targetUrl = new URL(
-                        paymentUrl,
-                        baseUrl || window.location.origin
-                    ).toString();
-                    setStatus("订单已创建，正在跳转支付页...");
+                    const targetUrl = `${baseUrl}/api/create-order?${params.toString()}`;
+                    setStatus("正在跳转支付页...");
                     window.location.href = targetUrl;
                 } catch (error) {
                     setStatus("下单失败，请稍后重试或联系微信客服。");
@@ -557,7 +439,7 @@
             });
 
             if (new URLSearchParams(window.location.search).get("paid") === "1") {
-                setStatus("已完成支付，请把订单信息发给客服确认发货。");
+                setStatus("已完成支付，请联系微信客服确认发货。");
             }
 
         </script>
