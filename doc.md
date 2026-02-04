@@ -24,9 +24,9 @@ openclaw 官方入口：https://docs.openclaw.ai/
 
 ## 常用目录
 
-- 内置工具 `c:\\xiahe`
-- openclaw 数据 桌面快捷方式
-- openclaw代码 `Linux\\Ubuntu\\data`
+- openclaw数据 桌面快捷方式
+- openclaw代码 `Linux\\Ubuntu\\data\\openclaw`
+- 其他目录 `c:\\xiahe`
 
 ## 开机自动运行
 
