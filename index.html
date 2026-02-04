@@ -1,387 +1,114 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="silk">
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>xiake.shop · 虾壳 2.0 小主机</title>
         <meta
             name="description"
-            content="xiake.shop 虾壳 2.0 小主机，预装 Windows 与最新版 openclawbot，支持微信控制。售价 699，原价 999。"
+            content="xiake.shop 虾壳 2.0 小主机，预装 Windows 与最新版 openclawbot，支持微信控制。售价 799，原价 1299。"
         />
         <link rel="icon" href="favicon.svg" type="image/svg+xml" />
-        <meta name="theme-color" content="#ff4d4d" />
+        <meta name="theme-color" content="#f3b7c8" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
         <link
             href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Manrope:wght@400;500;600&display=swap"
             rel="stylesheet"
         />
-        <style>
-            :root {
-                color-scheme: light;
-                --bg: #ffffff;
-                --card: #ffffff;
-                --border: #e6e8ef;
-                --text: #101318;
-                --muted: #6b7385;
-                --accent: #ff4d4d;
-                --accent-soft: rgba(255, 77, 77, 0.12);
-                --font-display: "Sora", "Avenir Next", "Helvetica Neue", sans-serif;
-                --font-body: "Manrope", "Avenir Next", "Helvetica Neue", sans-serif;
-            }
-
-            * {
-                box-sizing: border-box;
-                margin: 0;
-                padding: 0;
-            }
-
-            body {
-                min-height: 100vh;
-                background: var(--bg);
-                color: var(--text);
-                font-family: var(--font-body);
-                font-size: 16px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                padding: clamp(16px, 4vw, 40px);
-            }
-
-            .card {
-                width: min(640px, 100%);
-                background: var(--card);
-                border-radius: 24px;
-                border: 1px solid var(--border);
-                box-shadow: 0 18px 40px rgba(14, 18, 30, 0.08);
-                padding: clamp(20px, 5vw, 36px);
-                display: grid;
-                gap: 18px;
-            }
-
-            .brand-row {
-                display: flex;
-                align-items: center;
-                gap: 12px;
-            }
-
-            .logo {
-                width: 32px;
-                height: 32px;
-                display: inline-block;
-            }
-
-            .brand {
-                font-family: var(--font-display);
-                letter-spacing: 0.22em;
-                text-transform: uppercase;
-                font-size: 11px;
-                font-weight: 600;
-                color: var(--muted);
-            }
-
-            h1 {
-                font-family: var(--font-display);
-                font-size: clamp(26px, 5vw, 36px);
-                line-height: 1.2;
-                font-weight: 600;
-            }
-
-            .tagline {
-                color: var(--muted);
-                font-size: 16px;
-                line-height: 1.6;
-            }
-
-            .price {
-                display: flex;
-                align-items: baseline;
-                gap: 12px;
-                flex-wrap: wrap;
-            }
-
-            .price .current {
-                font-family: var(--font-display);
-                font-size: clamp(34px, 7vw, 48px);
-                color: var(--accent);
-                font-weight: 600;
-            }
-
-            .price .original {
-                color: var(--muted);
-                text-decoration: line-through;
-                font-size: 14px;
-            }
-
-            .product {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-
-            .product img {
-                width: min(420px, 100%);
-                height: auto;
-                display: block;
-                border-radius: 18px;
-            }
-
-            .config-grid {
-                display: grid;
-                gap: 12px;
-            }
-
-            .config-card {
-                border-radius: 18px;
-                border: 1px solid var(--border);
-                background: #f7f8fc;
-                padding: 14px;
-                display: grid;
-                gap: 10px;
-            }
-
-            .config-head {
-                display: flex;
-                align-items: baseline;
-                justify-content: space-between;
-                gap: 12px;
-                flex-wrap: wrap;
-            }
-
-            .config-title {
-                font-family: var(--font-display);
-                font-size: 16px;
-                font-weight: 600;
-            }
-
-            .config-price {
-                font-family: var(--font-display);
-                font-size: 18px;
-                color: var(--accent);
-                font-weight: 600;
-            }
-
-            .config-list {
-                display: grid;
-                gap: 6px;
-                color: var(--muted);
-                font-size: 13px;
-                line-height: 1.6;
-            }
-
-            .config-item {
-                display: flex;
-                justify-content: space-between;
-                gap: 12px;
-                flex-wrap: wrap;
-            }
-
-            .config-label {
-                color: var(--text);
-                font-weight: 600;
-            }
-
-            .config-note {
-                font-size: 12px;
-                color: var(--muted);
-            }
-
-            .section-title {
-                font-family: var(--font-display);
-                font-size: 18px;
-                font-weight: 600;
-            }
-
-            .order {
-                display: grid;
-                gap: 14px;
-                padding: 16px;
-                border-radius: 18px;
-                border: 1px solid var(--border);
-                background: #f7f8fc;
-            }
-
-            .info-note {
-                display: grid;
-                gap: 6px;
-                padding: 12px;
-                border-radius: 12px;
-                border: 1px solid var(--border);
-                background: #ffffff;
-                font-size: 13px;
-                color: var(--muted);
-                line-height: 1.6;
-            }
-
-            .actions {
-                display: flex;
-                flex-wrap: wrap;
-                gap: 10px;
-            }
-
-            .button,
-            .link-button {
-                border-radius: 12px;
-                padding: 12px 16px;
-                font-weight: 600;
-                font-size: 14px;
-                border: none;
-                cursor: pointer;
-                transition: transform 0.2s ease, box-shadow 0.2s ease;
-            }
-
-            .button:active,
-            .link-button:active {
-                transform: translateY(1px);
-            }
-
-            .button.primary {
-                background: var(--accent);
-                color: #ffffff;
-                box-shadow: 0 12px 20px rgba(255, 77, 77, 0.2);
-            }
-
-            .button.secondary {
-                background: #ffffff;
-                color: var(--text);
-                border: 1px solid var(--border);
-            }
-
-            .button:disabled {
-                cursor: not-allowed;
-                opacity: 0.6;
-                box-shadow: none;
-            }
-
-            .link-button {
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                text-decoration: none;
-            }
-
-            .pay-panel {
-                display: grid;
-                gap: 12px;
-                padding: 12px;
-                border-radius: 14px;
-                border: 1px solid var(--border);
-                background: #ffffff;
-            }
-
-            .status {
-                font-size: 12px;
-                color: var(--muted);
-                min-height: 18px;
-            }
-
-            .cta {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                gap: 12px;
-                flex-wrap: wrap;
-                border-top: 1px solid var(--border);
-                padding-top: 12px;
-            }
-
-            .cta .pill {
-                padding: 8px 14px;
-                border-radius: 999px;
-                background: var(--accent);
-                color: #ffffff;
-                font-size: 12px;
-                letter-spacing: 0.08em;
-                text-transform: uppercase;
-                font-weight: 600;
-            }
-
-            .cta .hint {
-                font-size: 12px;
-                color: var(--muted);
-            }
-        </style>
+        <link rel="stylesheet" href="styles.css" />
     </head>
-    <body>
-        <main class="card">
-            <div class="brand-row">
-                <img class="logo" src="favicon.svg" alt="xiake.shop logo" />
-                <div class="brand">xiake.shop｜虾壳商店</div>
-            </div>
-            <h1>虾壳 2.0 小主机</h1>
+    <body class="min-h-screen bg-base-200 font-sans text-base-content">
+        <main class="relative mx-auto w-full max-w-3xl px-4 py-12 lg:py-16">
+            <div
+                class="pointer-events-none absolute inset-x-0 -top-24 h-64 bg-gradient-to-r from-primary/35 via-secondary/20 to-accent/25 blur-3xl"
+            ></div>
 
-            <p class="tagline">
-                预装 Windows 与最新版 openclaw，支持微信控制。
-            </p>
-            <div class="price">
-                <span class="current">¥799</span>
-                <span class="original">原价 ¥1299</span>
-            </div>
-
-            <div class="product">
-                <img src="product22.png" alt="openclaw 小主机 产品图" />
-            </div>
-
-            <div class="config-grid">
-                <div class="config-card">
-                    <div class="config-head">
-                        <span class="config-title">标准版</span>
-                    </div>
-                    <div class="config-list">
-                        <div class="config-item">
-                            <span class="config-label">处理器</span>
-                            <span>i3 双核</span>
-                        </div>
-                        <div class="config-item">
-                            <span class="config-label">内存</span>
-                            <span>8G</span>
-                        </div>
-                        <div class="config-item">
-                            <span class="config-label">存储</span>
-                            <span>128G M.2 固态</span>
-                        </div>
-                        <div class="config-item">
-                            <span class="config-label">系统</span>
-                            <span>预装 Windows + openclaw</span>
-                        </div>
-                        <div class="config-item">
-                            <span class="config-label">控制</span>
-                            <span>微信控制</span>
-                        </div>
-                        <div class="config-item">
-                            <span class="config-label">配件</span>
-                            <span>含电源 + WiFi</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <section class="order" id="order">
-                <div class="section-title">支付并填写收货信息</div>
-                <p class="tagline">点击支付后将在支付页填写称呼、手机与收货地址。</p>
-                <div class="info-note">
-                    支付页会引导填写称呼、手机与收货地址，完成后即可付款。
+            <div class="relative space-y-8">
+                <div class="flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.3em] text-base-content/60">
+                    <img
+                        class="h-10 w-10 rounded-2xl bg-base-100 p-2 shadow"
+                        src="favicon.svg"
+                        alt="xiake.shop logo"
+                    />
+                    <span>xiake.shop｜虾壳商店</span>
                 </div>
 
-                <div
-                    class="pay-panel"
-                    data-onepay-base="https://onepay.minapp.xin"
-                    data-redirect-url=""
-                    data-notify-url=""
-                >
-                    <div class="actions">
-                        <button class="button primary" type="button" id="pay-button">下单并去支付</button>
-                    </div>
-                    <div class="status" id="order-status" role="status"></div>
+                <div class="space-y-3">
+                    <h1 class="font-display text-4xl font-semibold leading-tight sm:text-5xl">虾壳 2.0 小主机</h1>
+                    <p class="text-base text-base-content/70">预装 Windows + openclaw，微信控制，开箱即用。</p>
                 </div>
 
-            </section>
+                <div class="flex flex-wrap items-end gap-3">
+                    <span class="font-display text-5xl text-primary">¥799</span>
+                    <span class="badge badge-outline">原价 ¥1299</span>
+                    <span class="badge badge-secondary">立省 ¥500</span>
+                </div>
 
-            <div class="cta">
-                <span class="pill">购买客服</span>
-                <span class="hint">tianshe00</span>
+                <div class="card border border-base-300/60 bg-base-100 shadow-md">
+                    <figure class="px-6 pt-6">
+                        <img
+                            src="product22.png"
+                            alt="openclaw 小主机 产品图"
+                            class="w-full rounded-2xl shadow"
+                        />
+                    </figure>
+                    <div class="card-body">
+                        <p class="text-sm text-base-content/70">体积小、稳定静音，适合桌面或柜内长期运行。</p>
+                    </div>
+                </div>
+
+                <div class="card border border-base-300/60 bg-base-100 shadow-md">
+                    <figure class="px-6 pt-6">
+                        <img src="size.png" alt="虾壳 2.0 尺寸示意" class="w-full rounded-2xl shadow" />
+                    </figure>
+                    <div class="card-body">
+                        <p class="text-sm text-base-content/70">尺寸示意图。</p>
+                    </div>
+                </div>
+
+                <div class="card border border-base-300/60 bg-base-100 shadow-md">
+                    <div class="card-body gap-4">
+                        <h2 class="font-display text-lg">标准版配置</h2>
+                        <ul class="space-y-2 text-sm text-base-content/70">
+                            <li class="flex justify-between"><span>处理器</span><span class="font-medium text-base-content">i3 4130 双核</span></li>
+                            <li class="flex justify-between"><span>内存</span><span class="font-medium text-base-content">8G</span></li>
+                            <li class="flex justify-between"><span>存储</span><span class="font-medium text-base-content">128G M.2 固态</span></li>
+                            <li class="flex justify-between"><span>系统</span><span class="font-medium text-base-content">Windows + openclaw</span></li>
+                            <li class="flex justify-between"><span>控制</span><span class="font-medium text-base-content">微信控制</span></li>
+                            <li class="flex justify-between"><span>配件</span><span class="font-medium text-base-content">电源 + WiFi</span></li>
+                        </ul>
+                    </div>
+                </div>
+
+                <section class="card border border-base-300/60 bg-base-100 shadow-md" id="order">
+                    <div class="card-body gap-4">
+                        <div class="space-y-1">
+                            <h2 class="font-display text-lg">支付并填写收货信息</h2>
+                            <p class="text-sm text-base-content/70">支付页填写称呼、手机与地址。</p>
+                        </div>
+
+                        <div
+                            class="pay-panel rounded-2xl border border-base-300/60 bg-base-200/70 p-4"
+                            data-onepay-base="https://onepay.minapp.xin"
+                            data-redirect-url=""
+                            data-notify-url=""
+                        >
+                            <button class="btn btn-primary btn-wide" type="button" id="pay-button">
+                                下单并去支付
+                            </button>
+                            <div class="min-h-[1.25rem] text-xs text-base-content/60" id="order-status" role="status"></div>
+                        </div>
+
+                        <div class="flex items-center justify-between gap-3 border-t border-base-200/80 pt-4">
+                            <span class="badge badge-outline">购买客服</span>
+                            <span class="text-sm font-semibold tracking-wide">tianshe00</span>
+                        </div>
+                    </div>
+                </section>
             </div>
         </main>
+
         <script>
             const statusEl = document.getElementById("order-status");
             const payBtn = document.getElementById("pay-button");
@@ -394,8 +121,6 @@
             const redirectUrl = payPanel.dataset.redirectUrl || fallbackRedirectUrl;
             const notifyUrl = payPanel.dataset.notifyUrl || "";
 
-            let currentOutTradeNo = "";
-
             const setStatus = (text) => {
                 statusEl.textContent = text;
             };
@@ -405,8 +130,7 @@
                 payBtn.textContent = loading ? "正在创建订单..." : "下单并去支付";
             };
 
-            const createOutTradeNo = () =>
-                `XK${Date.now()}${Math.floor(100 + Math.random() * 900)}`;
+            const createOutTradeNo = () => `XK${Date.now()}${Math.floor(100 + Math.random() * 900)}`;
 
             payBtn.addEventListener("click", async () => {
                 if (!baseUrl) {
@@ -414,7 +138,6 @@
                     return;
                 }
 
-                currentOutTradeNo = createOutTradeNo();
                 setButtonState(true);
                 setStatus("正在创建订单...");
 
@@ -424,7 +147,7 @@
                         redirectUrl,
                         title: productTitle,
                         fields: "ship",
-                        outTradeNo: currentOutTradeNo,
+                        outTradeNo: createOutTradeNo(),
                     });
                     if (notifyUrl) {
                         params.set("notifyUrl", notifyUrl);
@@ -441,7 +164,6 @@
             if (new URLSearchParams(window.location.search).get("paid") === "1") {
                 setStatus("已完成支付，请联系微信客服确认发货。");
             }
-
         </script>
     </body>
 </html>

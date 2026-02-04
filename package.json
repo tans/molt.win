@@ -1,0 +1,22 @@
+{
+  "name": "molt.win",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "build": "tailwindcss -i ./input.css -o ./styles.css --minify",
+    "watch": "tailwindcss -i ./input.css -o ./styles.css --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://gitee.com/tans/molt.win.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.1.18",
+    "daisyui": "^5.5.17",
+    "tailwindcss": "^4.1.18"
+  }
+}

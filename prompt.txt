@@ -1,0 +1,13 @@
+用 原生html + Tailwind + daisyUI 写一个页面：
+
+目标：
+- 现代 SaaS 风格，参考 Vercel
+- 克制、留白多、偏细
+- 避免大色块和厚重阴影
+
+约束：
+- 使用 daisyUI，但减少其默认视觉风格
+- btn 主要用 btn-sm、btn-outline、btn-ghost
+- input / select 使用 sm
+- 多用 border / divider
+- 白色主题，不用暗黑主题
