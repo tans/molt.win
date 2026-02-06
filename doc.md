@@ -11,7 +11,7 @@
 
 openclaw 官方入口：https://docs.openclaw.ai/
 
-龙虾应用市场(未上线)：https://lxia.cn/
+龙虾应用市场(即将上线)：https://lxia.cn/
 
 ## 预装软件列表
 
