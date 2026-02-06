@@ -11,6 +11,8 @@
 
 openclaw 官方入口：https://docs.openclaw.ai/
 
+龙虾应用市场：https://lxia.cn/
+
 ## 预装软件列表
 
 1. wsl Ubuntu
