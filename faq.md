@@ -9,4 +9,4 @@
 | 5 | 配置 | i3 + 8g + 128g固态硬盘 |
 | 6 | 宣传视频 | 制作后上传到 https://xiake.shop |
 | 7 | 支持大模型 | OpenAI (API + Codex)<br>Anthropic (API + Claude Code CLI)<br>Qwen (OAuth)<br>OpenRouter<br>Vercel AI Gateway<br>Cloudflare AI Gateway<br>Moonshot AI (Kimi + Kimi Coding)<br>OpenCode Zen<br>Amazon Bedrock<br>Z.AI<br>Xiaomi<br>GLM models<br>MiniMax<br>Venice (Venice AI, privacy-focused)<br>Ollama (local models) |
-| 8 | 和mac对比，主要有两点缺陷 | 没法跑本地模型，本地模型可以分担部分大模型任务，比如调度。<br>没有辅助程序，mac有官方辅助程序控制电脑，包括但不限于模拟键盘鼠标，截屏、取窗口内容。windows系统需要等官方扩展，或者与市场的其他辅助程序结合。 |
+| 8 | 和mac对比 |没有辅助程序，mac有官方辅助程序控制电脑，包括但不限于模拟键盘鼠标，截屏、取窗口内容。windows系统需要等官方扩展，或者与市场的其他辅助程序结合。 |
