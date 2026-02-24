@@ -182,6 +182,8 @@
             const kvKeyRefCode = (code) => `${KV_PREFIX}:ref:code:${code}`;
             const kvKeyOrders = (code) => `${KV_PREFIX}:ref:orders:${code}`;
             const kvKeySettles = (phone) => `${KV_PREFIX}:ref:settles:${phone}`;
+            const kvKeyUsersIndex = () => `${KV_PREFIX}:ref:users`;
+            const kvKeyUserIndexedFlag = (phone) => `${KV_PREFIX}:ref:user-indexed:${phone}`;
 
             const kvUrl = (key) => `${KV_BASE}/kv/${encodeURIComponent(key)}`;
 
@@ -352,7 +354,32 @@
                 };
                 await kvPutJson(kvKeyUser(phone), user);
                 await kvPutText(kvKeyRefCode(refCode), phone);
+                await kvPushLine(kvKeyUsersIndex(), {
+                    phone,
+                    refCode,
+                    createdAt: now,
+                    indexedAt: now,
+                });
+                await kvPutText(kvKeyUserIndexedFlag(phone), "1");
                 return user;
+            };
+
+            const ensureUserIndexed = async (user) => {
+                if (!user?.phone) {
+                    return;
+                }
+                const indexed = await kvGetText(kvKeyUserIndexedFlag(user.phone));
+                if (indexed) {
+                    return;
+                }
+                const now = Date.now();
+                await kvPushLine(kvKeyUsersIndex(), {
+                    phone: user.phone,
+                    refCode: user.refCode || "",
+                    createdAt: user.createdAt || now,
+                    indexedAt: now,
+                });
+                await kvPutText(kvKeyUserIndexedFlag(user.phone), "1");
             };
 
             const setAuthState = (isLogin) => {
@@ -534,6 +561,7 @@
                     if (!user) {
                         user = await createUser(phone);
                     }
+                    await ensureUserIndexed(user);
                     currentUser = user;
                     localStorage.setItem(SESSION_KEY, phone);
                     renderUser();
@@ -634,6 +662,7 @@
                         localStorage.removeItem(SESSION_KEY);
                         return;
                     }
+                    await ensureUserIndexed(user);
                     currentUser = user;
                     renderUser();
                     setAuthState(true);

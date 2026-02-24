@@ -747,6 +747,15 @@
       }
     }
   }
+  .stats {
+    @layer daisyui.l1.l2.l3 {
+      position: relative;
+      display: inline-grid;
+      grid-auto-flow: column;
+      overflow-x: auto;
+      border-radius: var(--radius-box);
+    }
+  }
   .absolute {
     position: absolute;
   }
