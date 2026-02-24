@@ -1,0 +1,660 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="silk">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>xiake.shop · 推荐后台</title>
+        <meta name="description" content="xiake.shop 推荐后台，查看推荐订单与结算申请。" />
+        <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Manrope:wght@400;500;600&display=swap"
+            rel="stylesheet"
+        />
+        <link rel="stylesheet" href="styles.css" />
+    </head>
+    <body class="min-h-screen bg-base-200 font-sans text-base-content">
+        <main class="mx-auto w-full max-w-5xl px-4 py-10 lg:py-14">
+            <div class="space-y-6">
+                <div class="flex items-center justify-between gap-3">
+                    <div>
+                        <h1 class="font-display text-3xl font-semibold">xiake.shop 推荐后台</h1>
+                        <p class="text-sm text-base-content/70">登录后可复制推广链接、查看推荐订单与申请结算。</p>
+                    </div>
+                    <a class="btn btn-ghost btn-sm" href="index.html">返回商品页</a>
+                </div>
+
+                <section class="card border border-base-300/60 bg-base-100 shadow-md" id="login-panel">
+                    <div class="card-body gap-4">
+                        <h2 class="font-display text-lg">手机号登录</h2>
+                        <div class="grid gap-3 sm:grid-cols-2">
+                            <label class="form-control">
+                                <span class="label-text text-sm">手机号</span>
+                                <input class="input input-bordered" id="login-phone" type="tel" placeholder="请输入手机号" />
+                            </label>
+                            <label class="form-control">
+                                <span class="label-text text-sm">密码（默认）</span>
+                                <input class="input input-bordered" id="login-password" type="password" value="888888" />
+                            </label>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-3">
+                            <button class="btn btn-primary" id="login-btn" type="button">登录</button>
+                            <p class="text-xs text-base-content/60">首次登录自动创建推荐账号，默认级别为普通用户。</p>
+                        </div>
+                        <p class="min-h-[1.25rem] text-sm text-base-content/70" id="login-status"></p>
+                    </div>
+                </section>
+
+                <section class="hidden space-y-6" id="dashboard-panel">
+                    <div class="grid gap-4 lg:grid-cols-2">
+                        <div class="card border border-base-300/60 bg-base-100 shadow-md">
+                            <div class="card-body gap-3">
+                                <h2 class="font-display text-lg">账户信息</h2>
+                                <p class="text-sm">手机号：<span class="font-semibold" id="agent-phone">-</span></p>
+                                <p class="text-sm">推荐码：<span class="font-semibold" id="agent-code">-</span></p>
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <span class="text-sm">级别：</span>
+                                    <span class="badge badge-outline" id="agent-level-badge">普通用户（返60）</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card border border-base-300/60 bg-base-100 shadow-md">
+                            <div class="card-body gap-3">
+                                <h2 class="font-display text-lg">推广链接</h2>
+                                <p class="text-sm text-base-content/70">客户通过该链接下单可立减 30 元。</p>
+                                <label class="form-control">
+                                    <input class="input input-bordered" id="promo-link" readonly type="text" />
+                                </label>
+                                <div class="flex items-center gap-2">
+                                    <button class="btn btn-primary btn-sm" id="copy-link-btn" type="button">复制推广链接</button>
+                                    <button class="btn btn-ghost btn-sm" id="logout-btn" type="button">退出登录</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid gap-3 sm:grid-cols-3">
+                        <div class="rounded-2xl border border-base-300/60 bg-base-100 p-4 shadow-sm">
+                            <p class="text-xs text-base-content/60">推荐订单数</p>
+                            <p class="font-display text-2xl" id="stat-total-orders">0</p>
+                        </div>
+                        <div class="rounded-2xl border border-base-300/60 bg-base-100 p-4 shadow-sm">
+                            <p class="text-xs text-base-content/60">已支付订单</p>
+                            <p class="font-display text-2xl" id="stat-paid-orders">0</p>
+                        </div>
+                        <div class="rounded-2xl border border-base-300/60 bg-base-100 p-4 shadow-sm">
+                            <p class="text-xs text-base-content/60">可申请结算</p>
+                            <p class="font-display text-2xl" id="stat-eligible-amount">¥0</p>
+                        </div>
+                    </div>
+
+                    <div class="card border border-base-300/60 bg-base-100 shadow-md">
+                        <div class="card-body gap-4">
+                            <div class="flex flex-wrap items-center justify-between gap-3">
+                                <h2 class="font-display text-lg">推荐订单</h2>
+                                <button class="btn btn-primary btn-sm" id="refresh-orders-btn" type="button">刷新订单</button>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>时间</th>
+                                            <th>订单号</th>
+                                            <th>支付金额</th>
+                                            <th>返佣</th>
+                                            <th>状态</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="orders-body"></tbody>
+                                </table>
+                            </div>
+                            <p class="text-xs text-base-content/60">结算规则：支付成功满 10 天后可申请结算。</p>
+                        </div>
+                    </div>
+
+                    <div class="card border border-base-300/60 bg-base-100 shadow-md">
+                        <div class="card-body gap-4">
+                            <div class="flex flex-wrap items-center justify-between gap-3">
+                                <h2 class="font-display text-lg">结算申请</h2>
+                                <button class="btn btn-primary btn-sm" id="apply-settle-btn" type="button">申请结算</button>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>申请单号</th>
+                                            <th>时间</th>
+                                            <th>订单数</th>
+                                            <th>金额</th>
+                                            <th>状态</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="settles-body"></tbody>
+                                </table>
+                            </div>
+                            <p class="text-xs text-base-content/60">结算为人工转账，提交后请联系微信客服 tianshe00 审核打款。</p>
+                            <p class="min-h-[1.25rem] text-sm text-base-content/70" id="dashboard-status"></p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <script>
+            const KV_BASE = "https://kv.minapp.xin";
+            const ONEPAY_BASE = "https://onepay.minapp.xin";
+            const SITE_BASE = "https://xiake.shop";
+            const KV_PREFIX = "xiake";
+            const LOGIN_PASSWORD = "888888";
+            const SESSION_KEY = "xiake_ref_session_phone";
+            const TEN_DAYS_MS = 10 * 24 * 60 * 60 * 1000;
+
+            const loginPanel = document.getElementById("login-panel");
+            const dashboardPanel = document.getElementById("dashboard-panel");
+            const loginPhoneEl = document.getElementById("login-phone");
+            const loginPasswordEl = document.getElementById("login-password");
+            const loginBtn = document.getElementById("login-btn");
+            const loginStatusEl = document.getElementById("login-status");
+
+            const agentPhoneEl = document.getElementById("agent-phone");
+            const agentCodeEl = document.getElementById("agent-code");
+            const agentLevelBadgeEl = document.getElementById("agent-level-badge");
+            const promoLinkEl = document.getElementById("promo-link");
+            const copyLinkBtn = document.getElementById("copy-link-btn");
+            const logoutBtn = document.getElementById("logout-btn");
+            const refreshOrdersBtn = document.getElementById("refresh-orders-btn");
+            const applySettleBtn = document.getElementById("apply-settle-btn");
+
+            const statTotalOrdersEl = document.getElementById("stat-total-orders");
+            const statPaidOrdersEl = document.getElementById("stat-paid-orders");
+            const statEligibleAmountEl = document.getElementById("stat-eligible-amount");
+            const ordersBodyEl = document.getElementById("orders-body");
+            const settlesBodyEl = document.getElementById("settles-body");
+            const dashboardStatusEl = document.getElementById("dashboard-status");
+
+            let currentUser = null;
+            let currentOrders = [];
+            let currentSettlements = [];
+
+            const kvKeyUser = (phone) => `${KV_PREFIX}:ref:user:${phone}`;
+            const kvKeyRefCode = (code) => `${KV_PREFIX}:ref:code:${code}`;
+            const kvKeyOrders = (code) => `${KV_PREFIX}:ref:orders:${code}`;
+            const kvKeySettles = (phone) => `${KV_PREFIX}:ref:settles:${phone}`;
+
+            const kvUrl = (key) => `${KV_BASE}/kv/${encodeURIComponent(key)}`;
+
+            const setLoginStatus = (text) => {
+                loginStatusEl.textContent = text;
+            };
+
+            const setDashboardStatus = (text) => {
+                dashboardStatusEl.textContent = text;
+            };
+
+            const fmtFen = (fen) => `¥${((Number(fen) || 0) / 100).toFixed(0)}`;
+
+            const formatTime = (ts) => {
+                if (!ts) {
+                    return "-";
+                }
+                const ms = typeof ts === "number" ? (ts < 1e12 ? ts * 1000 : ts) : Date.parse(ts);
+                if (!ms || Number.isNaN(ms)) {
+                    return "-";
+                }
+                return new Date(ms).toLocaleString("zh-CN", { hour12: false });
+            };
+
+            const parseTime = (value) => {
+                if (typeof value === "number" && Number.isFinite(value)) {
+                    return value < 1e12 ? value * 1000 : value;
+                }
+                if (typeof value === "string" && value.trim()) {
+                    const parsed = Date.parse(value);
+                    return Number.isNaN(parsed) ? null : parsed;
+                }
+                return null;
+            };
+
+            const levelLabel = (level) => (level === "pro" ? "专业用户（返180）" : "普通用户（返60）");
+
+            const sanitizePhone = (raw) => String(raw || "").trim();
+
+            const randomRefCode = () => {
+                const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+                let code = "";
+                for (let i = 0; i < 6; i += 1) {
+                    code += chars[Math.floor(Math.random() * chars.length)];
+                }
+                return code;
+            };
+
+            const kvGetText = async (key) => {
+                const response = await fetch(kvUrl(key));
+                if (response.status === 404) {
+                    return null;
+                }
+                if (!response.ok) {
+                    throw new Error(`KV GET failed: ${response.status}`);
+                }
+                return (await response.text()).trim();
+            };
+
+            const kvGetJson = async (key) => {
+                const raw = await kvGetText(key);
+                if (!raw) {
+                    return null;
+                }
+                try {
+                    return JSON.parse(raw);
+                } catch (error) {
+                    return null;
+                }
+            };
+
+            const kvPutText = async (key, text) => {
+                const response = await fetch(kvUrl(key), {
+                    method: "PUT",
+                    headers: { "Content-Type": "text/plain;charset=UTF-8" },
+                    body: text,
+                });
+                if (!response.ok) {
+                    throw new Error(`KV PUT failed: ${response.status}`);
+                }
+            };
+
+            const kvPutJson = async (key, payload) => {
+                const response = await fetch(kvUrl(key), {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload),
+                });
+                if (!response.ok) {
+                    throw new Error(`KV PUT failed: ${response.status}`);
+                }
+            };
+
+            const kvPushLine = async (key, payload) => {
+                const response = await fetch(`${kvUrl(key)}/push`, {
+                    method: "POST",
+                    headers: { "Content-Type": "text/plain;charset=UTF-8" },
+                    body: `${JSON.stringify(payload)}\n`,
+                });
+                if (!response.ok) {
+                    throw new Error(`KV PUSH failed: ${response.status}`);
+                }
+            };
+
+            const parseLineJsonList = (raw) => {
+                if (!raw) {
+                    return [];
+                }
+                return raw
+                    .split("\n")
+                    .map((line) => line.trim())
+                    .filter(Boolean)
+                    .map((line) => {
+                        try {
+                            return JSON.parse(line);
+                        } catch (error) {
+                            return null;
+                        }
+                    })
+                    .filter(Boolean);
+            };
+
+            const queryPaidOrder = async (outTradeNo) => {
+                const url = `${ONEPAY_BASE}/api/query-order?outTradeNo=${encodeURIComponent(outTradeNo)}`;
+                const response = await fetch(url);
+                if (!response.ok) {
+                    return null;
+                }
+                const data = await response.json();
+                if (Array.isArray(data.orders) && data.orders.length > 0) {
+                    return data.orders[0];
+                }
+                if (data.order && typeof data.order === "object") {
+                    return data.order;
+                }
+                return null;
+            };
+
+            const ensureUniqueCode = async () => {
+                for (let i = 0; i < 12; i += 1) {
+                    const code = randomRefCode();
+                    const existing = await kvGetText(kvKeyRefCode(code));
+                    if (!existing) {
+                        return code;
+                    }
+                }
+                throw new Error("推荐码生成失败，请重试");
+            };
+
+            const readUser = async (phone) => {
+                const user = await kvGetJson(kvKeyUser(phone));
+                if (!user) {
+                    return null;
+                }
+                user.level = user.level === "pro" ? "pro" : "normal";
+                return user;
+            };
+
+            const createUser = async (phone) => {
+                const refCode = await ensureUniqueCode();
+                const now = Date.now();
+                const user = {
+                    phone,
+                    refCode,
+                    level: "normal",
+                    createdAt: now,
+                    updatedAt: now,
+                };
+                await kvPutJson(kvKeyUser(phone), user);
+                await kvPutText(kvKeyRefCode(refCode), phone);
+                return user;
+            };
+
+            const setAuthState = (isLogin) => {
+                if (isLogin) {
+                    loginPanel.classList.add("hidden");
+                    dashboardPanel.classList.remove("hidden");
+                } else {
+                    dashboardPanel.classList.add("hidden");
+                    loginPanel.classList.remove("hidden");
+                }
+            };
+
+            const renderUser = () => {
+                if (!currentUser) {
+                    return;
+                }
+                agentPhoneEl.textContent = currentUser.phone;
+                agentCodeEl.textContent = currentUser.refCode;
+                agentLevelBadgeEl.textContent = levelLabel(currentUser.level);
+                promoLinkEl.value = `${SITE_BASE}/?ref=${currentUser.refCode}`;
+            };
+
+            const computeOrderState = (order, settlementStateMap) => {
+                const settlementState = settlementStateMap.get(order.outTradeNo) || "";
+                if (settlementState === "paid") {
+                    return "已结算";
+                }
+                if (settlementState === "pending") {
+                    return "结算申请中";
+                }
+                if (!order.paidAt) {
+                    return "未支付";
+                }
+                const matureAt = order.paidAt + TEN_DAYS_MS;
+                if (Date.now() < matureAt) {
+                    return "冻结中";
+                }
+                return "可结算";
+            };
+
+            const refreshDashboardData = async () => {
+                if (!currentUser) {
+                    return;
+                }
+                setDashboardStatus("正在加载订单...");
+                try {
+                    const [ordersRaw, settlesRaw] = await Promise.all([
+                        kvGetText(kvKeyOrders(currentUser.refCode)),
+                        kvGetText(kvKeySettles(currentUser.phone)),
+                    ]);
+
+                    const orderRows = parseLineJsonList(ordersRaw);
+                    const settleRows = parseLineJsonList(settlesRaw);
+
+                    const latestByOrderNo = new Map();
+                    for (const row of orderRows) {
+                        if (!row.outTradeNo) {
+                            continue;
+                        }
+                        latestByOrderNo.set(row.outTradeNo, row);
+                    }
+
+                    const dedupOrders = Array.from(latestByOrderNo.values()).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+                    const sortedSettles = settleRows.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+                    const settlementStateMap = new Map();
+                    for (const settle of sortedSettles) {
+                        if (!Array.isArray(settle.orderNos)) {
+                            continue;
+                        }
+                        for (const orderNo of settle.orderNos) {
+                            if (!settlementStateMap.has(orderNo)) {
+                                settlementStateMap.set(orderNo, settle.status || "pending");
+                            }
+                        }
+                    }
+
+                    const checkedOrders = await Promise.all(
+                        dedupOrders.map(async (order) => {
+                            const paidOrder = await queryPaidOrder(order.outTradeNo);
+                            if (paidOrder) {
+                                order.paidAt = parseTime(paidOrder.paidAt || paidOrder.updatedAt || paidOrder.createdAt) || order.paidAt || Date.now();
+                                order.payStatus = "paid";
+                            }
+                            return order;
+                        })
+                    );
+
+                    currentOrders = checkedOrders;
+                    currentSettlements = sortedSettles;
+
+                    let paidCount = 0;
+                    let eligibleFen = 0;
+                    const now = Date.now();
+
+                    for (const order of currentOrders) {
+                        if (order.paidAt) {
+                            paidCount += 1;
+                        }
+                        const orderState = computeOrderState(order, settlementStateMap);
+                        const rebateFen = Number(order.rebateFen) || (order.refLevel === "pro" ? 18000 : 6000);
+                        if (orderState === "可结算") {
+                            eligibleFen += rebateFen;
+                        }
+                    }
+
+                    statTotalOrdersEl.textContent = String(currentOrders.length);
+                    statPaidOrdersEl.textContent = String(paidCount);
+                    statEligibleAmountEl.textContent = fmtFen(eligibleFen);
+
+                    if (currentOrders.length === 0) {
+                        ordersBodyEl.innerHTML = '<tr><td colspan="5" class="text-center text-base-content/60">暂无推荐订单</td></tr>';
+                    } else {
+                        ordersBodyEl.innerHTML = currentOrders
+                            .map((order) => {
+                                const orderState = computeOrderState(order, settlementStateMap);
+                                const rebateFen = Number(order.rebateFen) || (order.refLevel === "pro" ? 18000 : 6000);
+                                const stateText =
+                                    orderState === "冻结中"
+                                        ? `冻结中（至 ${formatTime((order.paidAt || now) + TEN_DAYS_MS)}）`
+                                        : orderState;
+                                return `
+                                    <tr>
+                                        <td>${formatTime(order.createdAt)}</td>
+                                        <td class="max-w-[14rem] truncate">${order.outTradeNo || "-"}</td>
+                                        <td>${fmtFen(order.feeFen)}</td>
+                                        <td>${fmtFen(rebateFen)}</td>
+                                        <td>${stateText}</td>
+                                    </tr>
+                                `;
+                            })
+                            .join("");
+                    }
+
+                    if (currentSettlements.length === 0) {
+                        settlesBodyEl.innerHTML = '<tr><td colspan="5" class="text-center text-base-content/60">暂无结算申请</td></tr>';
+                    } else {
+                        settlesBodyEl.innerHTML = currentSettlements
+                            .map((settle) => {
+                                const label = settle.status === "paid" ? "已打款" : settle.status === "rejected" ? "已驳回" : "审核中";
+                                return `
+                                    <tr>
+                                        <td>${settle.id || "-"}</td>
+                                        <td>${formatTime(settle.createdAt)}</td>
+                                        <td>${Array.isArray(settle.orderNos) ? settle.orderNos.length : 0}</td>
+                                        <td>${fmtFen(settle.amountFen)}</td>
+                                        <td>${label}</td>
+                                    </tr>
+                                `;
+                            })
+                            .join("");
+                    }
+
+                    setDashboardStatus("已刷新");
+                } catch (error) {
+                    setDashboardStatus("加载失败，请稍后重试。");
+                }
+            };
+
+            const login = async () => {
+                const phone = sanitizePhone(loginPhoneEl.value);
+                const password = String(loginPasswordEl.value || "").trim();
+
+                if (!/^1\d{10}$/.test(phone)) {
+                    setLoginStatus("请输入 11 位手机号。");
+                    return;
+                }
+                if (password !== LOGIN_PASSWORD) {
+                    setLoginStatus("密码错误，请使用默认密码 888888。");
+                    return;
+                }
+
+                loginBtn.disabled = true;
+                setLoginStatus("登录中...");
+
+                try {
+                    let user = await readUser(phone);
+                    if (!user) {
+                        user = await createUser(phone);
+                    }
+                    currentUser = user;
+                    localStorage.setItem(SESSION_KEY, phone);
+                    renderUser();
+                    setAuthState(true);
+                    setLoginStatus("");
+                    await refreshDashboardData();
+                } catch (error) {
+                    setLoginStatus("登录失败，请稍后重试。");
+                } finally {
+                    loginBtn.disabled = false;
+                }
+            };
+
+            const copyPromoLink = async () => {
+                const text = promoLinkEl.value;
+                try {
+                    await navigator.clipboard.writeText(text);
+                    setDashboardStatus("推广链接已复制。");
+                } catch (error) {
+                    promoLinkEl.select();
+                    setDashboardStatus("复制失败，请手动复制链接。");
+                }
+            };
+
+            const applySettlement = async () => {
+                if (!currentUser) {
+                    return;
+                }
+
+                const orderStateMap = new Map();
+                const sortedSettles = [...currentSettlements].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+                for (const settle of sortedSettles) {
+                    if (!Array.isArray(settle.orderNos)) {
+                        continue;
+                    }
+                    for (const orderNo of settle.orderNos) {
+                        if (!orderStateMap.has(orderNo)) {
+                            orderStateMap.set(orderNo, settle.status || "pending");
+                        }
+                    }
+                }
+
+                const eligibleOrders = currentOrders.filter((order) => {
+                    const orderState = computeOrderState(order, orderStateMap);
+                    return orderState === "可结算";
+                });
+
+                if (eligibleOrders.length === 0) {
+                    setDashboardStatus("当前没有可结算订单（需支付满 10 天且未申请）。");
+                    return;
+                }
+
+                const amountFen = eligibleOrders.reduce(
+                    (sum, order) => sum + (Number(order.rebateFen) || (order.refLevel === "pro" ? 18000 : 6000)),
+                    0
+                );
+                const settlement = {
+                    id: `SET${Date.now()}`,
+                    phone: currentUser.phone,
+                    refCode: currentUser.refCode,
+                    level: currentUser.level,
+                    amountFen,
+                    orderNos: eligibleOrders.map((item) => item.outTradeNo),
+                    status: "pending",
+                    createdAt: Date.now(),
+                };
+
+                applySettleBtn.disabled = true;
+                setDashboardStatus("正在提交结算申请...");
+                try {
+                    await kvPushLine(kvKeySettles(currentUser.phone), settlement);
+                    setDashboardStatus("结算申请已提交，请联系微信客服 tianshe00 人工审核打款。");
+                    await refreshDashboardData();
+                } catch (error) {
+                    setDashboardStatus("结算申请失败，请稍后重试。");
+                } finally {
+                    applySettleBtn.disabled = false;
+                }
+            };
+
+            const logout = () => {
+                currentUser = null;
+                currentOrders = [];
+                currentSettlements = [];
+                localStorage.removeItem(SESSION_KEY);
+                setAuthState(false);
+                setDashboardStatus("");
+            };
+
+            const tryAutoLogin = async () => {
+                const phone = sanitizePhone(localStorage.getItem(SESSION_KEY));
+                if (!/^1\d{10}$/.test(phone)) {
+                    return;
+                }
+                try {
+                    const user = await readUser(phone);
+                    if (!user) {
+                        localStorage.removeItem(SESSION_KEY);
+                        return;
+                    }
+                    currentUser = user;
+                    renderUser();
+                    setAuthState(true);
+                    await refreshDashboardData();
+                } catch (error) {
+                    localStorage.removeItem(SESSION_KEY);
+                }
+            };
+
+            loginBtn.addEventListener("click", login);
+            copyLinkBtn.addEventListener("click", copyPromoLink);
+            refreshOrdersBtn.addEventListener("click", refreshDashboardData);
+            applySettleBtn.addEventListener("click", applySettlement);
+            logoutBtn.addEventListener("click", logout);
+            loginPasswordEl.addEventListener("keydown", (event) => {
+                if (event.key === "Enter") {
+                    login();
+                }
+            });
+
+            tryAutoLogin();
+        </script>
+    </body>
+</html>

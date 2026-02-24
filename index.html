@@ -40,17 +40,14 @@
                 </div>
 
                 <div class="flex flex-wrap items-end gap-3">
-                    <span class="font-display text-5xl text-primary">¥799</span>
+                    <span class="font-display text-5xl text-primary" id="sale-price">¥799</span>
                     <span class="badge badge-outline">原价 ¥1299</span>
                     <span class="badge badge-secondary">立省 ¥500</span>
                 </div>
 
                 <div class="card border border-warning/30 bg-warning/10 shadow-sm">
                     <div class="card-body gap-2">
-                        <h2 class="text-sm font-semibold text-warning">快递停运说明</h2>
-                        <p class="text-sm text-base-content/70">
-                            受快递停运影响，2 月 9 日后的订单顺延至年初八上班发货。
-                        </p>
+                        <h2 class="text-sm font-semibold text-warning">开工大吉，恢复发货</h2>
                     </div>
                 </div>
 
@@ -90,34 +87,55 @@
                     </div>
                 </div>
 
+                <div class="card border border-base-300/60 bg-base-100 shadow-md">
+                    <div class="card-body gap-4">
+                        <div class="flex items-center justify-between gap-3">
+                            <h2 class="font-display text-lg">预装clawos</h2>
+                            <a class="btn btn-primary btn-sm" href="https://clawos.cc" target="_blank" rel="noopener noreferrer">访问 clawos.cc</a>
+                        </div>
+                        <figure>
+                            <img src="clawos.png" alt="clawos 功能插图" class="w-full rounded-2xl shadow" />
+                        </figure>
+                        <ul class="list-disc space-y-2 pl-5 text-sm text-base-content/70">
+                            <li>一键升级 openclaw</li>
+                            <li>简化Agent模型配置</li>
+                            <li>内置精选技能市场</li>
+                        </ul>
+                    </div>
+                </div>
+
                 <section class="card border border-base-300/60 bg-base-100 shadow-md" id="order">
                     <div class="card-body gap-4">
                         <div class="space-y-1">
                             <h2 class="font-display text-lg">支付并填写收货信息</h2>
                             <p class="text-sm text-base-content/70">支付页填写称呼、手机与地址。</p>
+                            <p class="hidden text-sm text-success" id="ref-tip"></p>
+                            <p class="text-xs text-base-content/60" id="pay-fee-tip">当前支付金额：¥799</p>
                         </div>
 
                         <div
-                            class="pay-panel rounded-2xl border border-base-300/60 bg-base-200/70 p-4"
+                            class="pay-panel"
                             data-onepay-base="https://onepay.minapp.xin"
                             data-redirect-url=""
                             data-notify-url=""
                         >
-                            <button class="btn btn-primary btn-wide" type="button" id="pay-button">
-                                下单并去支付
-                            </button>
+                            <div class="flex justify-center">
+                                <button class="btn btn-primary btn-lg btn-wide" type="button" id="pay-button">
+                                    下单并去支付
+                                </button>
+                            </div>
                             <div class="min-h-[1.25rem] text-xs text-base-content/60" id="order-status" role="status"></div>
                         </div>
 
-                        <div class="flex items-center justify-between gap-3 border-t border-base-200/80 pt-4">
-                            <span class="badge badge-outline">购买客服</span>
-                            <span class="text-sm font-semibold tracking-wide">wbot10</span>
+                        <div class="border-t border-base-200/80 pt-4">
+                            <p class="text-sm font-semibold tracking-wide">联系客服：tianshe00</p>
                         </div>
                     </div>
                 </section>
 
-                <div class="flex justify-center pt-2">
+                <div class="flex justify-center gap-2 pt-2">
                     <a class="btn btn-ghost btn-sm" href="doc.html">使用文档</a>
+                    <a class="btn btn-ghost btn-sm" href="ref.html">推荐后台</a>
                 </div>
             </div>
         </main>
@@ -126,13 +144,21 @@
             const statusEl = document.getElementById("order-status");
             const payBtn = document.getElementById("pay-button");
             const payPanel = document.querySelector(".pay-panel");
+            const salePriceEl = document.getElementById("sale-price");
+            const refTipEl = document.getElementById("ref-tip");
+            const payFeeTipEl = document.getElementById("pay-fee-tip");
 
-            const priceFen = 79900;
+            const onepayBaseUrl = (payPanel.dataset.onepayBase || "https://onepay.minapp.xin").replace(/\/$/, "");
+            const kvBaseUrl = "https://kv.minapp.xin";
+            const kvPrefix = "xiake";
+            const refStorageKey = "xiake_ref_code";
+            const basePriceFen = 79900;
+            const refDiscountFen = 3000;
             const productTitle = "虾壳 2.0 小主机";
-            const baseUrl = (payPanel.dataset.onepayBase || "").replace(/\/$/, "");
-            const fallbackRedirectUrl = `${window.location.origin}${window.location.pathname}?paid=1`;
-            const redirectUrl = payPanel.dataset.redirectUrl || fallbackRedirectUrl;
-            const notifyUrl = payPanel.dataset.notifyUrl || "";
+            const notifyUrl = (payPanel.dataset.notifyUrl || "").trim();
+
+            let activeRef = null;
+            let refReadyPromise = null;
 
             const setStatus = (text) => {
                 statusEl.textContent = text;
@@ -143,10 +169,198 @@
                 payBtn.textContent = loading ? "正在创建订单..." : "下单并去支付";
             };
 
-            const createOutTradeNo = () => `XK${Date.now()}${Math.floor(100 + Math.random() * 900)}`;
+            const fenToYuan = (fen) => `¥${(fen / 100).toFixed(0)}`;
+
+            const getRebateFenByLevel = (level) => (level === "pro" ? 18000 : 6000);
+
+            const sanitizeRefCode = (raw) => {
+                if (!raw) {
+                    return null;
+                }
+                const code = String(raw).trim().toUpperCase();
+                return /^[A-Z0-9]{4,16}$/.test(code) ? code : null;
+            };
+
+            const kvUrl = (key) => `${kvBaseUrl}/kv/${encodeURIComponent(key)}`;
+
+            const kvGetText = async (key) => {
+                const response = await fetch(kvUrl(key));
+                if (response.status === 404) {
+                    return null;
+                }
+                if (!response.ok) {
+                    throw new Error(`KV GET failed: ${response.status}`);
+                }
+                return (await response.text()).trim();
+            };
+
+            const kvGetJson = async (key) => {
+                const raw = await kvGetText(key);
+                if (!raw) {
+                    return null;
+                }
+                try {
+                    return JSON.parse(raw);
+                } catch (error) {
+                    return null;
+                }
+            };
+
+            const kvPutJson = async (key, payload) => {
+                const response = await fetch(kvUrl(key), {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload),
+                });
+                if (!response.ok) {
+                    throw new Error(`KV PUT failed: ${response.status}`);
+                }
+            };
+
+            const kvPushLine = async (key, payload) => {
+                const response = await fetch(`${kvUrl(key)}/push`, {
+                    method: "POST",
+                    headers: { "Content-Type": "text/plain;charset=UTF-8" },
+                    body: `${JSON.stringify(payload)}\n`,
+                });
+                if (!response.ok) {
+                    throw new Error(`KV PUSH failed: ${response.status}`);
+                }
+            };
+
+            const parseTimestamp = (value) => {
+                if (typeof value === "number" && Number.isFinite(value)) {
+                    return value < 1e12 ? value * 1000 : value;
+                }
+                if (typeof value === "string" && value.trim()) {
+                    const parsed = Date.parse(value);
+                    return Number.isNaN(parsed) ? null : parsed;
+                }
+                return null;
+            };
+
+            const queryPaidOrderByOutTradeNo = async (outTradeNo) => {
+                const queryUrl = `${onepayBaseUrl}/api/query-order?outTradeNo=${encodeURIComponent(outTradeNo)}`;
+                const response = await fetch(queryUrl);
+                if (!response.ok) {
+                    return null;
+                }
+                const data = await response.json();
+                if (Array.isArray(data.orders) && data.orders.length > 0) {
+                    return data.orders[0];
+                }
+                if (data.order && typeof data.order === "object") {
+                    return data.order;
+                }
+                return null;
+            };
+
+            const createOutTradeNo = (refCode) => {
+                const randomSuffix = Math.floor(1000 + Math.random() * 9000);
+                return `XK${Date.now()}${randomSuffix}${refCode ? `R${refCode}` : ""}`;
+            };
+
+            const buildRedirectUrl = (outTradeNo) => {
+                const rawBase = payPanel.dataset.redirectUrl || `${window.location.origin}${window.location.pathname}`;
+                const redirect = new URL(rawBase, window.location.origin);
+                redirect.searchParams.set("paid", "1");
+                redirect.searchParams.set("otn", outTradeNo);
+                return redirect.toString();
+            };
+
+            const renderPriceState = () => {
+                const discountFen = activeRef ? refDiscountFen : 0;
+                const payFen = basePriceFen - discountFen;
+                salePriceEl.textContent = fenToYuan(payFen);
+                payFeeTipEl.textContent = `当前支付金额：${fenToYuan(payFen)}${activeRef ? "（推荐优惠 -¥30）" : ""}`;
+                if (activeRef) {
+                    refTipEl.textContent = `推荐码 ${activeRef.refCode} 已生效，下单立减 30 元。`;
+                    refTipEl.classList.remove("hidden");
+                } else {
+                    refTipEl.textContent = "";
+                    refTipEl.classList.add("hidden");
+                }
+            };
+
+            const resolveRefInfo = async (refCode) => {
+                const ownerPhone = await kvGetText(`${kvPrefix}:ref:code:${refCode}`);
+                if (!ownerPhone) {
+                    return null;
+                }
+                const owner = await kvGetJson(`${kvPrefix}:ref:user:${ownerPhone}`);
+                const level = owner?.level === "pro" ? "pro" : "normal";
+                return {
+                    refCode,
+                    ownerPhone,
+                    level,
+                    rebateFen: getRebateFenByLevel(level),
+                };
+            };
+
+            const initRefCode = async () => {
+                const params = new URLSearchParams(window.location.search);
+                const fromUrl = sanitizeRefCode(params.get("ref"));
+                if (fromUrl) {
+                    const resolved = await resolveRefInfo(fromUrl);
+                    if (resolved) {
+                        activeRef = resolved;
+                        localStorage.setItem(refStorageKey, resolved.refCode);
+                    } else {
+                        localStorage.removeItem(refStorageKey);
+                    }
+                    renderPriceState();
+                    return;
+                }
+                const fromStorage = sanitizeRefCode(localStorage.getItem(refStorageKey));
+                if (!fromStorage) {
+                    renderPriceState();
+                    return;
+                }
+                const resolved = await resolveRefInfo(fromStorage);
+                if (resolved) {
+                    activeRef = resolved;
+                } else {
+                    localStorage.removeItem(refStorageKey);
+                }
+                renderPriceState();
+            };
+
+            const syncPaidOrderIfNeeded = async () => {
+                const params = new URLSearchParams(window.location.search);
+                if (params.get("paid") !== "1") {
+                    return;
+                }
+                const outTradeNo = (params.get("otn") || "").trim();
+                if (!outTradeNo) {
+                    setStatus("已完成支付，24 小时内自动发货，如有疑问请联系微信客服 tianshe00。");
+                    return;
+                }
+                setStatus("支付结果确认中...");
+                const paidOrder = await queryPaidOrderByOutTradeNo(outTradeNo);
+                if (!paidOrder) {
+                    setStatus("支付已返回，如未自动发货请联系微信客服 tianshe00。");
+                    return;
+                }
+                const detailKey = `${kvPrefix}:ref:order:${outTradeNo}`;
+                const existing = await kvGetJson(detailKey);
+                if (existing) {
+                    existing.payStatus = "paid";
+                    existing.paidAt = parseTimestamp(paidOrder.paidAt || paidOrder.updatedAt || paidOrder.createdAt) || Date.now();
+                    existing.onepayOrderId = paidOrder.id || paidOrder._id || "";
+                    await kvPutJson(detailKey, existing);
+                }
+                setStatus("已完成支付，24 小时内自动发货，如有疑问请联系微信客服 tianshe00。");
+            };
+
+            renderPriceState();
+            refReadyPromise = initRefCode().catch(() => {
+                activeRef = null;
+                localStorage.removeItem(refStorageKey);
+                renderPriceState();
+            });
 
             payBtn.addEventListener("click", async () => {
-                if (!baseUrl) {
+                if (!onepayBaseUrl) {
                     setStatus("请先配置支付服务地址。");
                     return;
                 }
@@ -155,17 +369,40 @@
                 setStatus("正在创建订单...");
 
                 try {
+                    if (refReadyPromise) {
+                        await refReadyPromise;
+                    }
+                    const discountFen = activeRef ? refDiscountFen : 0;
+                    const feeFen = basePriceFen - discountFen;
+                    const outTradeNo = createOutTradeNo(activeRef?.refCode || "");
+                    const redirectUrl = buildRedirectUrl(outTradeNo);
+                    if (activeRef) {
+                        const referralOrder = {
+                            outTradeNo,
+                            refCode: activeRef.refCode,
+                            refPhone: activeRef.ownerPhone,
+                            refLevel: activeRef.level,
+                            rebateFen: activeRef.rebateFen,
+                            discountFen: refDiscountFen,
+                            feeFen,
+                            originFeeFen: basePriceFen,
+                            createdAt: Date.now(),
+                            payStatus: "created",
+                        };
+                        await kvPushLine(`${kvPrefix}:ref:orders:${activeRef.refCode}`, referralOrder);
+                        await kvPutJson(`${kvPrefix}:ref:order:${outTradeNo}`, referralOrder);
+                    }
                     const params = new URLSearchParams({
-                        fee: String(priceFen),
+                        fee: String(feeFen),
                         redirectUrl,
-                        title: productTitle,
+                        title: activeRef ? `${productTitle}（推荐立减30元）` : productTitle,
                         fields: "ship",
-                        outTradeNo: createOutTradeNo(),
+                        outTradeNo,
                     });
                     if (notifyUrl) {
                         params.set("notifyUrl", notifyUrl);
                     }
-                    const targetUrl = `${baseUrl}/api/create-order?${params.toString()}`;
+                    const targetUrl = `${onepayBaseUrl}/api/create-order?${params.toString()}`;
                     setStatus("正在跳转支付页...");
                     window.location.href = targetUrl;
                 } catch (error) {
@@ -174,9 +411,9 @@
                 }
             });
 
-            if (new URLSearchParams(window.location.search).get("paid") === "1") {
-                setStatus("已完成支付，24 小时内自动发货，如有疑问请联系微信客服 wbot10。");
-            }
+            syncPaidOrderIfNeeded().catch(() => {
+                setStatus("支付已返回，如未自动发货请联系微信客服 tianshe00。");
+            });
         </script>
     </body>
 </html>
