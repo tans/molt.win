@@ -173,6 +173,17 @@
 
             const getRebateFenByLevel = (level) => (level === "pro" ? 18000 : 6000);
 
+            const createRefContext = (refCode, owner = null) => {
+                const level = owner?.level === "pro" ? "pro" : "normal";
+                return {
+                    refCode,
+                    ownerPhone: owner?.phone || "",
+                    level,
+                    rebateFen: getRebateFenByLevel(level),
+                    hasOwner: Boolean(owner?.phone),
+                };
+            };
+
             const sanitizeRefCode = (raw) => {
                 if (!raw) {
                     return null;
@@ -288,24 +299,26 @@
                     return null;
                 }
                 const owner = await kvGetJson(`${kvPrefix}:ref:user:${ownerPhone}`);
-                const level = owner?.level === "pro" ? "pro" : "normal";
-                return {
-                    refCode,
-                    ownerPhone,
-                    level,
-                    rebateFen: getRebateFenByLevel(level),
-                };
+                return createRefContext(refCode, {
+                    phone: ownerPhone,
+                    level: owner?.level,
+                });
             };
 
             const initRefCode = async () => {
                 const params = new URLSearchParams(window.location.search);
                 const fromUrl = sanitizeRefCode(params.get("ref"));
                 if (fromUrl) {
-                    const resolved = await resolveRefInfo(fromUrl);
-                    if (resolved) {
-                        activeRef = resolved;
-                        localStorage.setItem(refStorageKey, resolved.refCode);
-                    } else {
+                    activeRef = createRefContext(fromUrl);
+                    try {
+                        const resolved = await resolveRefInfo(fromUrl);
+                        if (resolved) {
+                            activeRef = resolved;
+                            localStorage.setItem(refStorageKey, resolved.refCode);
+                        } else {
+                            localStorage.removeItem(refStorageKey);
+                        }
+                    } catch (error) {
                         localStorage.removeItem(refStorageKey);
                     }
                     renderPriceState();
@@ -316,10 +329,14 @@
                     renderPriceState();
                     return;
                 }
-                const resolved = await resolveRefInfo(fromStorage);
-                if (resolved) {
-                    activeRef = resolved;
-                } else {
+                try {
+                    const resolved = await resolveRefInfo(fromStorage);
+                    if (resolved) {
+                        activeRef = resolved;
+                    } else {
+                        localStorage.removeItem(refStorageKey);
+                    }
+                } catch (error) {
                     localStorage.removeItem(refStorageKey);
                 }
                 renderPriceState();
@@ -353,11 +370,7 @@
             };
 
             renderPriceState();
-            refReadyPromise = initRefCode().catch(() => {
-                activeRef = null;
-                localStorage.removeItem(refStorageKey);
-                renderPriceState();
-            });
+            refReadyPromise = initRefCode();
 
             payBtn.addEventListener("click", async () => {
                 if (!onepayBaseUrl) {
@@ -376,7 +389,7 @@
                     const feeFen = basePriceFen - discountFen;
                     const outTradeNo = createOutTradeNo(activeRef?.refCode || "");
                     const redirectUrl = buildRedirectUrl(outTradeNo);
-                    if (activeRef) {
+                    if (activeRef?.hasOwner) {
                         const referralOrder = {
                             outTradeNo,
                             refCode: activeRef.refCode,
