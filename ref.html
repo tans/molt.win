@@ -55,7 +55,7 @@
                                 <p class="text-sm">推荐码：<span class="font-semibold" id="agent-code">-</span></p>
                                 <div class="flex flex-wrap items-center gap-2">
                                     <span class="text-sm">级别：</span>
-                                    <span class="badge badge-outline" id="agent-level-badge">普通用户（返60）</span>
+                                    <span class="badge badge-outline" id="agent-level-badge">普通用户（返20）</span>
                                 </div>
                             </div>
                         </div>
@@ -63,7 +63,7 @@
                         <div class="card border border-base-300/60 bg-base-100 shadow-md">
                             <div class="card-body gap-3">
                                 <h2 class="font-display text-lg">推广链接</h2>
-                                <p class="text-sm text-base-content/70">客户通过该链接下单可立减 30 元。</p>
+                                <p class="text-sm text-base-content/70">客户通过该链接下单可立减 10 或 30 元（按级别）。</p>
                                 <label class="form-control">
                                     <input class="input input-bordered" id="promo-link" readonly type="text" />
                                 </label>
@@ -219,7 +219,7 @@
                 return null;
             };
 
-            const levelLabel = (level) => (level === "pro" ? "专业用户（返180）" : "普通用户（返60）");
+            const levelLabel = (level) => (level === "pro" ? "高级用户（返150）" : "普通用户（返20）");
 
             const sanitizePhone = (raw) => String(raw || "").trim();
 
@@ -399,7 +399,7 @@
                 agentPhoneEl.textContent = currentUser.phone;
                 agentCodeEl.textContent = currentUser.refCode;
                 agentLevelBadgeEl.textContent = levelLabel(currentUser.level);
-                promoLinkEl.value = `${SITE_BASE}/?ref=${currentUser.refCode}`;
+                promoLinkEl.value = `${SITE_BASE}/index.html?ref=${currentUser.refCode}`;
             };
 
             const computeOrderState = (order, settlementStateMap) => {
@@ -481,7 +481,7 @@
                             paidCount += 1;
                         }
                         const orderState = computeOrderState(order, settlementStateMap);
-                        const rebateFen = Number(order.rebateFen) || (order.refLevel === "pro" ? 18000 : 6000);
+                        const rebateFen = Number(order.rebateFen) || (order.refLevel === "pro" ? 15000 : 2000);
                         if (orderState === "可结算") {
                             eligibleFen += rebateFen;
                         }
@@ -497,7 +497,7 @@
                         ordersBodyEl.innerHTML = currentOrders
                             .map((order) => {
                                 const orderState = computeOrderState(order, settlementStateMap);
-                                const rebateFen = Number(order.rebateFen) || (order.refLevel === "pro" ? 18000 : 6000);
+                                const rebateFen = Number(order.rebateFen) || (order.refLevel === "pro" ? 15000 : 2000);
                                 const stateText =
                                     orderState === "冻结中"
                                         ? `冻结中（至 ${formatTime((order.paidAt || now) + TEN_DAYS_MS)}）`
@@ -615,7 +615,7 @@
                 }
 
                 const amountFen = eligibleOrders.reduce(
-                    (sum, order) => sum + (Number(order.rebateFen) || (order.refLevel === "pro" ? 18000 : 6000)),
+                    (sum, order) => sum + (Number(order.rebateFen) || (order.refLevel === "pro" ? 15000 : 2000)),
                     0
                 );
                 const settlement = {

@@ -153,7 +153,6 @@
             const kvPrefix = "xiake";
             const refStorageKey = "xiake_ref_code";
             const basePriceFen = 79900;
-            const refDiscountFen = 3000;
             const productTitle = "虾壳 2.0 小主机";
             const notifyUrl = (payPanel.dataset.notifyUrl || "").trim();
 
@@ -171,7 +170,9 @@
 
             const fenToYuan = (fen) => `¥${(fen / 100).toFixed(0)}`;
 
-            const getRebateFenByLevel = (level) => (level === "pro" ? 18000 : 6000);
+            const getRebateFenByLevel = (level) => (level === "pro" ? 15000 : 2000);
+
+            const getDiscountFenByLevel = (level) => (level === "pro" ? 3000 : 1000);
 
             const createRefContext = (refCode, owner = null) => {
                 const level = owner?.level === "pro" ? "pro" : "normal";
@@ -180,6 +181,7 @@
                     ownerPhone: owner?.phone || "",
                     level,
                     rebateFen: getRebateFenByLevel(level),
+                    discountFen: getDiscountFenByLevel(level),
                     hasOwner: Boolean(owner?.phone),
                 };
             };
@@ -188,8 +190,30 @@
                 if (!raw) {
                     return null;
                 }
-                const code = String(raw).trim().toUpperCase();
-                return /^[A-Z0-9]{4,16}$/.test(code) ? code : null;
+                const code = String(raw).trim().toUpperCase().replace(/[^A-Z0-9]/g, "");
+                return code.length >= 2 && code.length <= 24 ? code : null;
+            };
+
+            const getRefCodeFromUrl = () => {
+                const searchParams = new URLSearchParams(window.location.search);
+                const keys = ["ref", "refCode", "rcode", "invite", "code"];
+                for (const key of keys) {
+                    const value = sanitizeRefCode(searchParams.get(key));
+                    if (value) {
+                        return value;
+                    }
+                }
+                const hash = window.location.hash.startsWith("#") ? window.location.hash.slice(1) : window.location.hash;
+                if (hash) {
+                    const hashParams = new URLSearchParams(hash);
+                    for (const key of keys) {
+                        const value = sanitizeRefCode(hashParams.get(key));
+                        if (value) {
+                            return value;
+                        }
+                    }
+                }
+                return null;
             };
 
             const kvUrl = (key) => `${kvBaseUrl}/kv/${encodeURIComponent(key)}`;
@@ -280,12 +304,12 @@
             };
 
             const renderPriceState = () => {
-                const discountFen = activeRef ? refDiscountFen : 0;
+                const discountFen = activeRef ? activeRef.discountFen : 0;
                 const payFen = basePriceFen - discountFen;
                 salePriceEl.textContent = fenToYuan(payFen);
-                payFeeTipEl.textContent = `当前支付金额：${fenToYuan(payFen)}${activeRef ? "（推荐优惠 -¥30）" : ""}`;
+                payFeeTipEl.textContent = `当前支付金额：${fenToYuan(payFen)}${activeRef ? `（推荐优惠 -${fenToYuan(discountFen)}）` : ""}`;
                 if (activeRef) {
-                    refTipEl.textContent = `推荐码 ${activeRef.refCode} 已生效，下单立减 30 元。`;
+                    refTipEl.textContent = `推荐码 ${activeRef.refCode} 已生效，下单立减 ${fenToYuan(discountFen).replace("¥", "")} 元。`;
                     refTipEl.classList.remove("hidden");
                 } else {
                     refTipEl.textContent = "";
@@ -306,20 +330,18 @@
             };
 
             const initRefCode = async () => {
-                const params = new URLSearchParams(window.location.search);
-                const fromUrl = sanitizeRefCode(params.get("ref"));
+                const fromUrl = getRefCodeFromUrl();
                 if (fromUrl) {
                     activeRef = createRefContext(fromUrl);
+                    localStorage.setItem(refStorageKey, fromUrl);
+                    renderPriceState();
                     try {
                         const resolved = await resolveRefInfo(fromUrl);
                         if (resolved) {
                             activeRef = resolved;
-                            localStorage.setItem(refStorageKey, resolved.refCode);
-                        } else {
-                            localStorage.removeItem(refStorageKey);
                         }
                     } catch (error) {
-                        localStorage.removeItem(refStorageKey);
+                        // 链接优惠不依赖推荐账号查询结果。
                     }
                     renderPriceState();
                     return;
@@ -329,15 +351,15 @@
                     renderPriceState();
                     return;
                 }
+                activeRef = createRefContext(fromStorage);
+                renderPriceState();
                 try {
                     const resolved = await resolveRefInfo(fromStorage);
                     if (resolved) {
                         activeRef = resolved;
-                    } else {
-                        localStorage.removeItem(refStorageKey);
                     }
                 } catch (error) {
-                    localStorage.removeItem(refStorageKey);
+                    // 无网络时也保持本地推荐优惠。
                 }
                 renderPriceState();
             };
@@ -385,7 +407,7 @@
                     if (refReadyPromise) {
                         await refReadyPromise;
                     }
-                    const discountFen = activeRef ? refDiscountFen : 0;
+                    const discountFen = activeRef ? activeRef.discountFen : 0;
                     const feeFen = basePriceFen - discountFen;
                     const outTradeNo = createOutTradeNo(activeRef?.refCode || "");
                     const redirectUrl = buildRedirectUrl(outTradeNo);
@@ -396,7 +418,7 @@
                             refPhone: activeRef.ownerPhone,
                             refLevel: activeRef.level,
                             rebateFen: activeRef.rebateFen,
-                            discountFen: refDiscountFen,
+                            discountFen,
                             feeFen,
                             originFeeFen: basePriceFen,
                             createdAt: Date.now(),
@@ -408,7 +430,7 @@
                     const params = new URLSearchParams({
                         fee: String(feeFen),
                         redirectUrl,
-                        title: activeRef ? `${productTitle}（推荐立减30元）` : productTitle,
+                        title: activeRef ? `${productTitle}（推荐立减${fenToYuan(discountFen).replace("¥", "")}元）` : productTitle,
                         fields: "ship",
                         outTradeNo,
                     });
