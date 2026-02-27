@@ -846,6 +846,9 @@
   .mt-2 {
     margin-top: calc(var(--spacing) * 2);
   }
+  .mt-4 {
+    margin-top: calc(var(--spacing) * 4);
+  }
   .status {
     @layer daisyui.l1.l2.l3 {
       display: inline-block;
