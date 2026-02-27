@@ -1,26 +1,27 @@
-感谢首批虾壳主机客户:
-
-## 预装说明
+## 使用说明
 
 主机预装了openclaw，并配置好企业微信和浏览器连接。  
 基于官方仓库扩展了企业插件，程序可跟随官方源码升级。  
+**部分机子没有预装ClawOS，建议自行下载安装。便于进行日常的Openclaw配置管理。**
 
 ## 本地访问入口
 
 本地openclaw访问入口：`http://127.0.0.1:18789/`
 
+本地ClawOS：`http://localhost:8080`
+
 openclaw 官方入口：https://docs.openclaw.ai/
 
-龙虾应用市场(即将上线)：https://lxia.cn/
+ClawOS下载更新：https://clawos.cc/
 
 ## 预装软件列表
 
-1. wsl Ubuntu
-2. nodejs + pnpm 运行环境
-3. openclaw源码
-4. 企业微信
-5. clashx 用于安装依赖
-6. chrome
+1. **ClawOS**
+1. **WSL Ubuntu**
+2. **Node.js + pnpm** 运行环境
+3. **OpenClaw** 源码
+4. **企业微信**
+6. **Chrome**
 
 ## 常用目录
 
@@ -31,7 +32,6 @@ openclaw 官方入口：https://docs.openclaw.ai/
 ## 开机自动运行
 
 - openclaw 官方程序
-- clashx 全球通(首批客户限定)。
 - chrome 远程调用脚本
 - 企业微信及相关链接程序
 
@@ -44,7 +44,7 @@ openclaw 官方入口：https://docs.openclaw.ai/
 
 更多功能需要自行探索，我们也会尽快推出更多集成和使用案例。
 
-更多的扩展功能和案例更新，可查看我们的官网 中国龙虾 https://lxia.cn
+更多的扩展功能和案例更新，可查看我们的官网 clawos.cc https://clawos.cc/
 
 ### 关于软件更新
-可以参考官方文档自行更新， 也可以等我们的配套软件上线后(预计2周)，通过我们软件更新。
+通过ClawOS一键更新。

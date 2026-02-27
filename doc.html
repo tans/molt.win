@@ -20,47 +20,41 @@
                 class="pointer-events-none absolute inset-x-0 -top-24 h-64 bg-gradient-to-r from-primary/35 via-secondary/20 to-accent/25 blur-3xl"
             ></div>
 
-            <article class="relative space-y-8">
-                <div class="flex justify-center">
+            <article class="relative space-y-6">
+                <header class="flex flex-wrap items-center justify-between gap-3">
                     <img
-                        class="h-24 w-auto"
+                        class="h-12 w-auto"
                         src="openclaw-logo-text.png"
                         alt="openclaw 标识"
                     />
-                </div>
-                <section
-                    class="card border border-base-300/60 bg-base-100 shadow-md"
-                >
-                    <div class="card-body space-y-3">
-                        <h2 class="font-display text-lg">快速跳转</h2>
-                        <div class="flex flex-wrap items-center gap-3">
-                            <a class="btn btn-primary btn-sm" href="doc.html"
-                                >使用文档</a
-                            >
-                            <a class="btn btn-secondary btn-sm" href="faq.html"
-                                >FAQ（售前）</a
-                            >
-                            <a class="btn btn-secondary btn-sm" href="faq2.html"
-                                >FAQ（售后）</a
-                            >
-                            <a class="btn btn-ghost btn-sm" href="index.html"
-                                >返回首页</a
-                            >
-                        </div>
-                    </div>
-                </section>
-                <p class="text-lg font-medium">感谢首批虾壳主机客户:</p>
+                    <nav class="flex flex-wrap items-center justify-end gap-2">
+                        <a class="btn btn-ghost btn-xs" href="index.html">返回首页</a>
+                        <a class="btn btn-secondary btn-xs" href="#usage-guide"
+                            >使用说明</a
+                        >
+                        <a class="btn btn-secondary btn-xs" href="faq.html"
+                            >常见问题</a
+                        >
+                        <a class="btn btn-secondary btn-xs" href="faq2.html"
+                            >疑难解答</a
+                        >
+                    </nav>
+                </header>
 
                 <section
+                    id="usage-guide"
                     class="card border border-base-300/60 bg-base-100 shadow-md"
                 >
                     <div class="card-body space-y-3">
-                        <h2 class="font-display text-lg">预装说明</h2>
+                        <h2 class="font-display text-lg">使用说明</h2>
                         <p>
                             主机预装了openclaw，并配置好企业微信和浏览器连接。
                         </p>
                         <p>
                             基于官方仓库扩展了企业插件，程序可跟随官方源码升级。
+                        </p>
+                        <p class="text-sm font-bold text-error">
+                            部分机子没有预装ClawOS，建议自行下载安装。便于进行日常的Openclaw配置管理。
                         </p>
                     </div>
                 </section>
@@ -70,38 +64,51 @@
                 >
                     <div class="card-body space-y-3">
                         <h2 class="font-display text-lg">本地访问入口</h2>
-                        <div class="flex flex-wrap items-center gap-3">
-                            <span>本地openclaw访问入口：</span>
-                            <a
-                                class="btn btn-primary btn-sm"
-                                href="http://127.0.0.1:18789/?token=xiake"
-                                target="_blank"
-                                rel="noreferrer"
-                            >
-                                http://127.0.0.1:18789/
-                            </a>
-                        </div>
-                        <div class="flex flex-wrap items-center gap-3">
-                            <span>openclaw 官方入口：</span>
-                            <a
-                                class="btn btn-secondary btn-sm"
-                                href="https://docs.openclaw.ai/"
-                                target="_blank"
-                                rel="noreferrer"
-                            >
-                                https://docs.openclaw.ai/
-                            </a>
-                        </div>
-                        <div class="flex flex-wrap items-center gap-3">
-                            <span>龙虾应用市场（即将上线）：</span>
-                            <a
-                                class="btn btn-secondary btn-sm"
-                                href="https://lxia.cn/"
-                                target="_blank"
-                                rel="noreferrer"
-                            >
-                                https://lxia.cn/
-                            </a>
+                        <div class="space-y-3">
+                            <div class="grid gap-2 sm:grid-cols-[11rem_1fr] sm:items-center">
+                                <span class="text-sm text-base-content/70">本地openclaw访问入口：</span>
+                                <a
+                                    class="btn btn-primary btn-sm justify-start sm:w-fit"
+                                    href="http://127.0.0.1:18789/?token=xiake"
+                                    target="_blank"
+                                    rel="noreferrer"
+                                >
+                                    http://127.0.0.1:18789/
+                                </a>
+                            </div>
+                            <div class="grid gap-2 sm:grid-cols-[11rem_1fr] sm:items-center">
+                                <span class="text-sm text-base-content/70">本地ClawOS：</span>
+                                <a
+                                    class="btn btn-primary btn-sm justify-start sm:w-fit"
+                                    href="http://localhost:8080"
+                                    target="_blank"
+                                    rel="noreferrer"
+                                >
+                                    http://localhost:8080
+                                </a>
+                            </div>
+                            <div class="grid gap-2 sm:grid-cols-[11rem_1fr] sm:items-center">
+                                <span class="text-sm text-base-content/70">openclaw 官方入口：</span>
+                                <a
+                                    class="btn btn-secondary btn-sm justify-start sm:w-fit"
+                                    href="https://docs.openclaw.ai/"
+                                    target="_blank"
+                                    rel="noreferrer"
+                                >
+                                    https://docs.openclaw.ai/
+                                </a>
+                            </div>
+                            <div class="grid gap-2 sm:grid-cols-[11rem_1fr] sm:items-center">
+                                <span class="text-sm text-base-content/70">ClawOS下载更新：</span>
+                                <a
+                                    class="btn btn-secondary btn-sm justify-start sm:w-fit"
+                                    href="https://clawos.cc/"
+                                    target="_blank"
+                                    rel="noreferrer"
+                                >
+                                    https://clawos.cc/
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </section>
@@ -114,13 +121,13 @@
                         <ol
                             class="list-decimal space-y-2 pl-5 text-sm text-base-content/70"
                         >
-                            <li>wsl Ubuntu</li>
-                            <li>nodejs + pnpm 运行环境</li>
-                            <li>openclaw源码</li>
-                            <li>企业微信</li>
-                            <li>clashx 用于依赖安装</li>
-                            <li>内置minimax token</li>
-                            <li>chrome</li>
+                            <li><strong>ClawOS</strong></li>
+                            <li><strong>WSL Ubuntu</strong></li>
+                            <li><strong>Node.js + pnpm</strong> 运行环境</li>
+                            <li><strong>OpenClaw</strong> 源码</li>
+                            <li><strong>企业微信</strong></li>
+                            <li>内置 <strong>MiniMax Token</strong></li>
+                            <li><strong>Chrome</strong></li>
                         </ol>
                     </div>
                 </section>
@@ -152,7 +159,6 @@
                             class="list-disc space-y-2 pl-5 text-sm text-base-content/70"
                         >
                             <li>openclaw 官方程序</li>
-                            <li>clashx 全球通(首批客户限定)。</li>
                             <li>chrome 远程调用脚本</li>
                             <li>企业微信及相关链接程序</li>
                         </ul>
@@ -183,21 +189,20 @@
                         <div class="flex flex-wrap items-center gap-3">
                             <span
                                 >更多的扩展功能和案例更新，可查看我们的官网
-                                中国龙虾</span
+                                clawos.cc</span
                             >
                             <a
                                 class="btn btn-secondary btn-sm"
-                                href="https://lxia.cn"
+                                href="https://clawos.cc/"
                                 target="_blank"
                                 rel="noreferrer"
                             >
-                                https://lxia.cn
+                                https://clawos.cc/
                             </a>
                         </div>
                         <h3 class="font-display text-lg">关于软件更新</h3>
                         <div>
-                            可以参考官方文档自行更新，
-                            也可以等我们的配套软件上线后(预计2周)，通过我们软件更新。
+                            通过ClawOS一键更新。
                         </div>
                     </div>
                 </section>

@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>xiake.shop · 常见问题（售后）</title>
+        <title>xiake.shop · 疑难解答</title>
         <link rel="icon" href="favicon.svg" type="image/svg+xml" />
         <meta name="theme-color" content="#f3b7c8" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -20,42 +20,32 @@
                 class="pointer-events-none absolute inset-x-0 -top-24 h-64 bg-gradient-to-r from-primary/35 via-secondary/20 to-accent/25 blur-3xl"
             ></div>
 
-            <article class="relative space-y-8">
-                <div class="flex justify-center">
+            <article class="relative space-y-6">
+                <header class="flex flex-wrap items-center justify-between gap-3">
                     <img
-                        class="h-24 w-auto"
+                        class="h-12 w-auto"
                         src="openclaw-logo-text.png"
                         alt="openclaw 标识"
                     />
-                </div>
+                    <nav class="flex flex-wrap items-center justify-end gap-2">
+                        <a class="btn btn-ghost btn-xs" href="index.html">返回首页</a>
+                        <a class="btn btn-secondary btn-xs" href="doc.html#usage-guide"
+                            >使用说明</a
+                        >
+                        <a class="btn btn-secondary btn-xs" href="faq.html"
+                            >常见问题</a
+                        >
+                        <a class="btn btn-secondary btn-xs" href="faq2.html"
+                            >疑难解答</a
+                        >
+                    </nav>
+                </header>
 
                 <section
                     class="card border border-base-300/60 bg-base-100 shadow-md"
                 >
                     <div class="card-body space-y-3">
-                        <h2 class="font-display text-lg">快速跳转</h2>
-                        <div class="flex flex-wrap items-center gap-3">
-                            <a class="btn btn-secondary btn-sm" href="doc.html"
-                                >使用文档</a
-                            >
-                            <a class="btn btn-secondary btn-sm" href="faq.html"
-                                >FAQ（售前）</a
-                            >
-                            <a class="btn btn-primary btn-sm" href="faq2.html"
-                                >FAQ（售后）</a
-                            >
-                            <a class="btn btn-ghost btn-sm" href="index.html"
-                                >返回首页</a
-                            >
-                        </div>
-                    </div>
-                </section>
-
-                <section
-                    class="card border border-base-300/60 bg-base-100 shadow-md"
-                >
-                    <div class="card-body space-y-3">
-                        <h1 class="font-display text-lg">常见问题（售后）</h1>
+                        <h1 class="font-display text-lg">疑难解答</h1>
                         <ol
                             class="list-decimal space-y-2 pl-5 text-sm text-base-content/70"
                         >
@@ -65,7 +55,7 @@
                                 </div>
                                 <div>
                                     确认版本为 4.1.33.6009<br />
-                                    如果切换了企业微信企业或者账号，需要重新开启外挂。
+                                    如果切换了企业微信企业或者账号，需要通过ClawOS重启企微网关。
                                 </div>
                             </li>
                             <li>
