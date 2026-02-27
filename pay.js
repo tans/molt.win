@@ -1,0 +1,321 @@
+(() => {
+  const statusEl = document.getElementById("order-status");
+  const payBtn = document.getElementById("pay-button");
+  const payPanel = document.querySelector(".pay-panel");
+  const salePriceEl = document.getElementById("sale-price");
+  const refTipEl = document.getElementById("ref-tip");
+  const payFeeTipEl = document.getElementById("pay-fee-tip");
+
+  if (!statusEl || !payBtn || !payPanel || !salePriceEl || !refTipEl || !payFeeTipEl) {
+    return;
+  }
+
+  const onepayBaseUrl = (payPanel.dataset.onepayBase || "https://onepay.minapp.xin").replace(/\/$/, "");
+  const kvBaseUrl = "https://kv.minapp.xin";
+  const kvPrefix = "xiake";
+  const refStorageKey = "xiake_ref_code";
+  const basePriceFen = Number(payPanel.dataset.basePriceFen || 0);
+  const productTitle = payPanel.dataset.productTitle || "虾壳 2.0 小主机";
+  const notifyUrl = (payPanel.dataset.notifyUrl || "").trim();
+  const orderPrefix = (payPanel.dataset.orderPrefix || "XK").trim() || "XK";
+
+  if (!Number.isFinite(basePriceFen) || basePriceFen <= 0) {
+    statusEl.textContent = "价格配置异常，请联系管理员。";
+    payBtn.disabled = true;
+    return;
+  }
+
+  let activeRef = null;
+  let refReadyPromise = null;
+
+  const setStatus = (text) => {
+    statusEl.textContent = text;
+  };
+
+  const setButtonState = (loading) => {
+    payBtn.disabled = loading;
+    payBtn.textContent = loading ? "正在创建订单..." : "下单并去支付";
+  };
+
+  const fenToYuan = (fen) => `¥${(fen / 100).toFixed(0)}`;
+
+  const getRebateFenByLevel = (level) => (level === "pro" ? 15000 : 2000);
+
+  const getDiscountFenByLevel = (level) => (level === "pro" ? 3000 : 1000);
+
+  const createRefContext = (refCode, owner = null) => {
+    const level = owner?.level === "pro" ? "pro" : "normal";
+    return {
+      refCode,
+      ownerPhone: owner?.phone || "",
+      level,
+      rebateFen: getRebateFenByLevel(level),
+      discountFen: getDiscountFenByLevel(level),
+      hasOwner: Boolean(owner?.phone),
+    };
+  };
+
+  const sanitizeRefCode = (raw) => {
+    if (!raw) {
+      return null;
+    }
+    const code = String(raw).trim().toUpperCase().replace(/[^A-Z0-9]/g, "");
+    return code.length >= 2 && code.length <= 24 ? code : null;
+  };
+
+  const getRefCodeFromUrl = () => {
+    const searchParams = new URLSearchParams(window.location.search);
+    const keys = ["ref", "refCode", "rcode", "invite", "code"];
+    for (const key of keys) {
+      const value = sanitizeRefCode(searchParams.get(key));
+      if (value) {
+        return value;
+      }
+    }
+    const hash = window.location.hash.startsWith("#") ? window.location.hash.slice(1) : window.location.hash;
+    if (hash) {
+      const hashParams = new URLSearchParams(hash);
+      for (const key of keys) {
+        const value = sanitizeRefCode(hashParams.get(key));
+        if (value) {
+          return value;
+        }
+      }
+    }
+    return null;
+  };
+
+  const kvUrl = (key) => `${kvBaseUrl}/kv/${encodeURIComponent(key)}`;
+
+  const kvGetText = async (key) => {
+    const response = await fetch(kvUrl(key));
+    if (response.status === 404) {
+      return null;
+    }
+    if (!response.ok) {
+      throw new Error(`KV GET failed: ${response.status}`);
+    }
+    return (await response.text()).trim();
+  };
+
+  const kvGetJson = async (key) => {
+    const raw = await kvGetText(key);
+    if (!raw) {
+      return null;
+    }
+    try {
+      return JSON.parse(raw);
+    } catch (error) {
+      return null;
+    }
+  };
+
+  const kvPutJson = async (key, payload) => {
+    const response = await fetch(kvUrl(key), {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    if (!response.ok) {
+      throw new Error(`KV PUT failed: ${response.status}`);
+    }
+  };
+
+  const kvPushLine = async (key, payload) => {
+    const response = await fetch(`${kvUrl(key)}/push`, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=UTF-8" },
+      body: `${JSON.stringify(payload)}\n`,
+    });
+    if (!response.ok) {
+      throw new Error(`KV PUSH failed: ${response.status}`);
+    }
+  };
+
+  const parseTimestamp = (value) => {
+    if (typeof value === "number" && Number.isFinite(value)) {
+      return value < 1e12 ? value * 1000 : value;
+    }
+    if (typeof value === "string" && value.trim()) {
+      const parsed = Date.parse(value);
+      return Number.isNaN(parsed) ? null : parsed;
+    }
+    return null;
+  };
+
+  const queryPaidOrderByOutTradeNo = async (outTradeNo) => {
+    const queryUrl = `${onepayBaseUrl}/api/query-order?outTradeNo=${encodeURIComponent(outTradeNo)}`;
+    const response = await fetch(queryUrl);
+    if (!response.ok) {
+      return null;
+    }
+    const data = await response.json();
+    if (Array.isArray(data.orders) && data.orders.length > 0) {
+      return data.orders[0];
+    }
+    if (data.order && typeof data.order === "object") {
+      return data.order;
+    }
+    return null;
+  };
+
+  const createOutTradeNo = (refCode) => {
+    const randomSuffix = Math.floor(1000 + Math.random() * 9000);
+    return `${orderPrefix}${Date.now()}${randomSuffix}${refCode ? `R${refCode}` : ""}`;
+  };
+
+  const buildRedirectUrl = (outTradeNo) => {
+    const rawBase = payPanel.dataset.redirectUrl || `${window.location.origin}${window.location.pathname}`;
+    const redirect = new URL(rawBase, window.location.origin);
+    redirect.searchParams.set("paid", "1");
+    redirect.searchParams.set("otn", outTradeNo);
+    return redirect.toString();
+  };
+
+  const renderPriceState = () => {
+    const discountFen = activeRef ? activeRef.discountFen : 0;
+    const payFen = basePriceFen - discountFen;
+    salePriceEl.textContent = fenToYuan(payFen);
+    payFeeTipEl.textContent = `当前支付金额：${fenToYuan(payFen)}${activeRef ? `（推荐优惠 -${fenToYuan(discountFen)}）` : ""}`;
+    if (activeRef) {
+      refTipEl.textContent = `推荐码 ${activeRef.refCode} 已生效，下单立减 ${fenToYuan(discountFen).replace("¥", "")} 元。`;
+      refTipEl.classList.remove("hidden");
+    } else {
+      refTipEl.textContent = "";
+      refTipEl.classList.add("hidden");
+    }
+  };
+
+  const resolveRefInfo = async (refCode) => {
+    const ownerPhone = await kvGetText(`${kvPrefix}:ref:code:${refCode}`);
+    if (!ownerPhone) {
+      return null;
+    }
+    const owner = await kvGetJson(`${kvPrefix}:ref:user:${ownerPhone}`);
+    return createRefContext(refCode, {
+      phone: ownerPhone,
+      level: owner?.level,
+    });
+  };
+
+  const initRefCode = async () => {
+    const fromUrl = getRefCodeFromUrl();
+    if (fromUrl) {
+      activeRef = createRefContext(fromUrl);
+      localStorage.setItem(refStorageKey, fromUrl);
+      renderPriceState();
+      try {
+        const resolved = await resolveRefInfo(fromUrl);
+        if (resolved) {
+          activeRef = resolved;
+        }
+      } catch (error) {
+        // 链接优惠不依赖推荐账号查询结果。
+      }
+      renderPriceState();
+      return;
+    }
+    const fromStorage = sanitizeRefCode(localStorage.getItem(refStorageKey));
+    if (!fromStorage) {
+      renderPriceState();
+      return;
+    }
+    activeRef = createRefContext(fromStorage);
+    renderPriceState();
+    try {
+      const resolved = await resolveRefInfo(fromStorage);
+      if (resolved) {
+        activeRef = resolved;
+      }
+    } catch (error) {
+      // 无网络时也保持本地推荐优惠。
+    }
+    renderPriceState();
+  };
+
+  const syncPaidOrderIfNeeded = async () => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("paid") !== "1") {
+      return;
+    }
+    const outTradeNo = (params.get("otn") || "").trim();
+    if (!outTradeNo) {
+      setStatus("已完成支付，24 小时内自动发货，如有疑问请联系微信客服 tianshe00。");
+      return;
+    }
+    setStatus("支付结果确认中...");
+    const paidOrder = await queryPaidOrderByOutTradeNo(outTradeNo);
+    if (!paidOrder) {
+      setStatus("支付已返回，如未自动发货请联系微信客服 tianshe00。");
+      return;
+    }
+    const detailKey = `${kvPrefix}:ref:order:${outTradeNo}`;
+    const existing = await kvGetJson(detailKey);
+    if (existing) {
+      existing.payStatus = "paid";
+      existing.paidAt = parseTimestamp(paidOrder.paidAt || paidOrder.updatedAt || paidOrder.createdAt) || Date.now();
+      existing.onepayOrderId = paidOrder.id || paidOrder._id || "";
+      await kvPutJson(detailKey, existing);
+    }
+    setStatus("已完成支付，24 小时内自动发货，如有疑问请联系微信客服 tianshe00。");
+  };
+
+  renderPriceState();
+  refReadyPromise = initRefCode();
+
+  payBtn.addEventListener("click", async () => {
+    if (!onepayBaseUrl) {
+      setStatus("请先配置支付服务地址。");
+      return;
+    }
+
+    setButtonState(true);
+    setStatus("正在创建订单...");
+
+    try {
+      if (refReadyPromise) {
+        await refReadyPromise;
+      }
+      const discountFen = activeRef ? activeRef.discountFen : 0;
+      const feeFen = basePriceFen - discountFen;
+      const outTradeNo = createOutTradeNo(activeRef?.refCode || "");
+      const redirectUrl = buildRedirectUrl(outTradeNo);
+      if (activeRef?.hasOwner) {
+        const referralOrder = {
+          outTradeNo,
+          refCode: activeRef.refCode,
+          refPhone: activeRef.ownerPhone,
+          refLevel: activeRef.level,
+          rebateFen: activeRef.rebateFen,
+          discountFen,
+          feeFen,
+          originFeeFen: basePriceFen,
+          createdAt: Date.now(),
+          payStatus: "created",
+        };
+        await kvPushLine(`${kvPrefix}:ref:orders:${activeRef.refCode}`, referralOrder);
+        await kvPutJson(`${kvPrefix}:ref:order:${outTradeNo}`, referralOrder);
+      }
+      const params = new URLSearchParams({
+        fee: String(feeFen),
+        redirectUrl,
+        title: activeRef ? `${productTitle}（推荐立减${fenToYuan(discountFen).replace("¥", "")}元）` : productTitle,
+        fields: "ship",
+        outTradeNo,
+      });
+      if (notifyUrl) {
+        params.set("notifyUrl", notifyUrl);
+      }
+      const targetUrl = `${onepayBaseUrl}/api/create-order?${params.toString()}`;
+      setStatus("正在跳转支付页...");
+      window.location.href = targetUrl;
+    } catch (error) {
+      setStatus("下单失败，请稍后重试或联系微信客服。");
+      setButtonState(false);
+    }
+  });
+
+  syncPaidOrderIfNeeded().catch(() => {
+    setStatus("支付已返回，如未自动发货请联系微信客服 tianshe00。");
+  });
+})();
