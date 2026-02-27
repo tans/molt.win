@@ -3,10 +3,9 @@
   const payBtn = document.getElementById("pay-button");
   const payPanel = document.querySelector(".pay-panel");
   const salePriceEl = document.getElementById("sale-price");
-  const refTipEl = document.getElementById("ref-tip");
   const payFeeTipEl = document.getElementById("pay-fee-tip");
 
-  if (!statusEl || !payBtn || !payPanel || !salePriceEl || !refTipEl || !payFeeTipEl) {
+  if (!statusEl || !payBtn || !payPanel || !salePriceEl || !payFeeTipEl) {
     return;
   }
 
@@ -41,8 +40,6 @@
 
   const getRebateFenByLevel = (level) => (level === "pro" ? 15000 : 2000);
 
-  const getDiscountFenByLevel = (level) => (level === "pro" ? 3000 : 1000);
-
   const createRefContext = (refCode, owner = null) => {
     const level = owner?.level === "pro" ? "pro" : "normal";
     return {
@@ -50,7 +47,6 @@
       ownerPhone: owner?.phone || "",
       level,
       rebateFen: getRebateFenByLevel(level),
-      discountFen: getDiscountFenByLevel(level),
       hasOwner: Boolean(owner?.phone),
     };
   };
@@ -173,17 +169,8 @@
   };
 
   const renderPriceState = () => {
-    const discountFen = activeRef ? activeRef.discountFen : 0;
-    const payFen = basePriceFen - discountFen;
-    salePriceEl.textContent = fenToYuan(payFen);
-    payFeeTipEl.textContent = `当前支付金额：${fenToYuan(payFen)}${activeRef ? `（推荐优惠 -${fenToYuan(discountFen)}）` : ""}`;
-    if (activeRef) {
-      refTipEl.textContent = `推荐码 ${activeRef.refCode} 已生效，下单立减 ${fenToYuan(discountFen).replace("¥", "")} 元。`;
-      refTipEl.classList.remove("hidden");
-    } else {
-      refTipEl.textContent = "";
-      refTipEl.classList.add("hidden");
-    }
+    salePriceEl.textContent = fenToYuan(basePriceFen);
+    payFeeTipEl.textContent = `当前支付金额：${fenToYuan(basePriceFen)}`;
   };
 
   const resolveRefInfo = async (refCode) => {
@@ -210,7 +197,7 @@
           activeRef = resolved;
         }
       } catch (error) {
-        // 链接优惠不依赖推荐账号查询结果。
+        // 推荐归属不依赖推荐账号查询结果。
       }
       renderPriceState();
       return;
@@ -228,7 +215,7 @@
         activeRef = resolved;
       }
     } catch (error) {
-      // 无网络时也保持本地推荐优惠。
+      // 无网络时也保持本地推荐归属。
     }
     renderPriceState();
   };
@@ -276,8 +263,7 @@
       if (refReadyPromise) {
         await refReadyPromise;
       }
-      const discountFen = activeRef ? activeRef.discountFen : 0;
-      const feeFen = basePriceFen - discountFen;
+      const feeFen = basePriceFen;
       const outTradeNo = createOutTradeNo(activeRef?.refCode || "");
       const redirectUrl = buildRedirectUrl(outTradeNo);
       if (activeRef?.hasOwner) {
@@ -287,7 +273,6 @@
           refPhone: activeRef.ownerPhone,
           refLevel: activeRef.level,
           rebateFen: activeRef.rebateFen,
-          discountFen,
           feeFen,
           originFeeFen: basePriceFen,
           createdAt: Date.now(),
@@ -299,7 +284,7 @@
       const params = new URLSearchParams({
         fee: String(feeFen),
         redirectUrl,
-        title: activeRef ? `${productTitle}（推荐立减${fenToYuan(discountFen).replace("¥", "")}元）` : productTitle,
+        title: productTitle,
         fields: "ship",
         outTradeNo,
       });
