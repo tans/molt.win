@@ -805,6 +805,18 @@
   .mx-auto {
     margin-inline: auto;
   }
+  .input-sm {
+    @layer daisyui.l1.l2 {
+      --size: calc(var(--size-field, 0.25rem) * 8);
+      font-size: max(var(--font-size, 0.75rem), 0.75rem);
+      &[type="number"] {
+        &::-webkit-inner-spin-button {
+          margin-block: calc(0.25rem * -2);
+          margin-inline-end: calc(0.25rem * -3);
+        }
+      }
+    }
+  }
   .label {
     @layer daisyui.l1.l2.l3 {
       display: inline-flex;
@@ -978,6 +990,12 @@
   }
   .max-w-\[14rem\] {
     max-width: 14rem;
+  }
+  .min-w-\[12rem\] {
+    min-width: 12rem;
+  }
+  .flex-1 {
+    flex: 1;
   }
   .list-decimal {
     list-style-type: decimal;

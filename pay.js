@@ -17,6 +17,8 @@
   const productTitle = payPanel.dataset.productTitle || "虾壳 2.0 小主机";
   const notifyUrl = (payPanel.dataset.notifyUrl || "").trim();
   const orderPrefix = (payPanel.dataset.orderPrefix || "XK").trim() || "XK";
+  const defaultServiceWechat = "tianshe00";
+  const serviceWechatEls = Array.from(document.querySelectorAll("[data-service-wechat]"));
 
   if (!Number.isFinite(basePriceFen) || basePriceFen <= 0) {
     statusEl.textContent = "价格配置异常，请联系管理员。";
@@ -26,6 +28,7 @@
 
   let activeRef = null;
   let refReadyPromise = null;
+  let activeServiceWechat = defaultServiceWechat;
 
   const setStatus = (text) => {
     statusEl.textContent = text;
@@ -36,6 +39,8 @@
     payBtn.textContent = loading ? "正在创建订单..." : "下单并去支付";
   };
 
+  const sanitizeWechat = (raw) => String(raw || "").trim().replace(/\s+/g, "");
+
   const fenToYuan = (fen) => `¥${(fen / 100).toFixed(0)}`;
 
   const getRebateFenByLevel = (level) => (level === "pro" ? 15000 : 2000);
@@ -45,10 +50,17 @@
     return {
       refCode,
       ownerPhone: owner?.phone || "",
+      ownerWechat: sanitizeWechat(owner?.wechat || ""),
       level,
       rebateFen: getRebateFenByLevel(level),
       hasOwner: Boolean(owner?.phone),
     };
+  };
+
+  const renderServiceWechat = () => {
+    for (const el of serviceWechatEls) {
+      el.textContent = activeServiceWechat;
+    }
   };
 
   const sanitizeRefCode = (raw) => {
@@ -173,6 +185,8 @@
     payFeeTipEl.textContent = `当前支付金额：${fenToYuan(basePriceFen)}`;
   };
 
+  const resolveServiceWechat = () => activeRef?.ownerWechat || defaultServiceWechat;
+
   const resolveRefInfo = async (refCode) => {
     const ownerPhone = await kvGetText(`${kvPrefix}:ref:code:${refCode}`);
     if (!ownerPhone) {
@@ -182,6 +196,7 @@
     return createRefContext(refCode, {
       phone: ownerPhone,
       level: owner?.level,
+      wechat: owner?.wechat,
     });
   };
 
@@ -189,6 +204,8 @@
     const fromUrl = getRefCodeFromUrl();
     if (fromUrl) {
       activeRef = createRefContext(fromUrl);
+      activeServiceWechat = resolveServiceWechat();
+      renderServiceWechat();
       localStorage.setItem(refStorageKey, fromUrl);
       renderPriceState();
       try {
@@ -199,15 +216,21 @@
       } catch (error) {
         // 推荐归属不依赖推荐账号查询结果。
       }
+      activeServiceWechat = resolveServiceWechat();
+      renderServiceWechat();
       renderPriceState();
       return;
     }
     const fromStorage = sanitizeRefCode(localStorage.getItem(refStorageKey));
     if (!fromStorage) {
+      activeServiceWechat = resolveServiceWechat();
+      renderServiceWechat();
       renderPriceState();
       return;
     }
     activeRef = createRefContext(fromStorage);
+    activeServiceWechat = resolveServiceWechat();
+    renderServiceWechat();
     renderPriceState();
     try {
       const resolved = await resolveRefInfo(fromStorage);
@@ -217,6 +240,8 @@
     } catch (error) {
       // 无网络时也保持本地推荐归属。
     }
+    activeServiceWechat = resolveServiceWechat();
+    renderServiceWechat();
     renderPriceState();
   };
 
@@ -225,15 +250,22 @@
     if (params.get("paid") !== "1") {
       return;
     }
+    if (refReadyPromise) {
+      try {
+        await refReadyPromise;
+      } catch (error) {
+        // 推荐信息读取失败时保持默认客服微信。
+      }
+    }
     const outTradeNo = (params.get("otn") || "").trim();
     if (!outTradeNo) {
-      setStatus("已完成支付，24 小时内自动发货，如有疑问请联系微信客服 tianshe00。");
+      setStatus(`已完成支付，24 小时内自动发货，如有疑问请联系微信客服 ${activeServiceWechat}。`);
       return;
     }
     setStatus("支付结果确认中...");
     const paidOrder = await queryPaidOrderByOutTradeNo(outTradeNo);
     if (!paidOrder) {
-      setStatus("支付已返回，如未自动发货请联系微信客服 tianshe00。");
+      setStatus(`支付已返回，如未自动发货请联系微信客服 ${activeServiceWechat}。`);
       return;
     }
     const detailKey = `${kvPrefix}:ref:order:${outTradeNo}`;
@@ -244,10 +276,11 @@
       existing.onepayOrderId = paidOrder.id || paidOrder._id || "";
       await kvPutJson(detailKey, existing);
     }
-    setStatus("已完成支付，24 小时内自动发货，如有疑问请联系微信客服 tianshe00。");
+    setStatus(`已完成支付，24 小时内自动发货，如有疑问请联系微信客服 ${activeServiceWechat}。`);
   };
 
   renderPriceState();
+  renderServiceWechat();
   refReadyPromise = initRefCode();
 
   payBtn.addEventListener("click", async () => {
@@ -295,12 +328,12 @@
       setStatus("正在跳转支付页...");
       window.location.href = targetUrl;
     } catch (error) {
-      setStatus("下单失败，请稍后重试或联系微信客服。");
+      setStatus(`下单失败，请稍后重试或联系微信客服 ${activeServiceWechat}。`);
       setButtonState(false);
     }
   });
 
   syncPaidOrderIfNeeded().catch(() => {
-    setStatus("支付已返回，如未自动发货请联系微信客服 tianshe00。");
+    setStatus(`支付已返回，如未自动发货请联系微信客服 ${activeServiceWechat}。`);
   });
 })();

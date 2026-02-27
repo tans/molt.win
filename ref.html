@@ -57,6 +57,13 @@
                                     <span class="text-sm">级别：</span>
                                     <span class="badge badge-outline" id="agent-level-badge">普通用户（返20）</span>
                                 </div>
+                                <label class="form-control">
+                                    <span class="label-text text-sm">客服微信号（推广下单展示）</span>
+                                    <div class="flex flex-wrap items-center gap-2">
+                                        <input class="input input-bordered input-sm flex-1 min-w-[12rem]" id="agent-wechat" type="text" placeholder="默认 tianshe00" />
+                                        <button class="btn btn-primary btn-sm" id="save-wechat-btn" type="button">保存微信号</button>
+                                    </div>
+                                </label>
                             </div>
                         </div>
 
@@ -150,6 +157,7 @@
             const LOGIN_PASSWORD = "888888";
             const SESSION_KEY = "xiake_ref_session_phone";
             const TEN_DAYS_MS = 10 * 24 * 60 * 60 * 1000;
+            const DEFAULT_SERVICE_WECHAT = "tianshe00";
 
             const loginPanel = document.getElementById("login-panel");
             const dashboardPanel = document.getElementById("dashboard-panel");
@@ -161,6 +169,8 @@
             const agentPhoneEl = document.getElementById("agent-phone");
             const agentCodeEl = document.getElementById("agent-code");
             const agentLevelBadgeEl = document.getElementById("agent-level-badge");
+            const agentWechatEl = document.getElementById("agent-wechat");
+            const saveWechatBtn = document.getElementById("save-wechat-btn");
             const promoLinkEl = document.getElementById("promo-link");
             const copyLinkBtn = document.getElementById("copy-link-btn");
             const logoutBtn = document.getElementById("logout-btn");
@@ -222,6 +232,7 @@
             const levelLabel = (level) => (level === "pro" ? "高级用户（返150）" : "普通用户（返20）");
 
             const sanitizePhone = (raw) => String(raw || "").trim();
+            const sanitizeWechat = (raw) => String(raw || "").trim().replace(/\s+/g, "");
 
             const randomRefCode = () => {
                 const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -339,6 +350,7 @@
                     return null;
                 }
                 user.level = user.level === "pro" ? "pro" : "normal";
+                user.wechat = sanitizeWechat(user.wechat || "");
                 return user;
             };
 
@@ -349,6 +361,7 @@
                     phone,
                     refCode,
                     level: "normal",
+                    wechat: "",
                     createdAt: now,
                     updatedAt: now,
                 };
@@ -399,7 +412,33 @@
                 agentPhoneEl.textContent = currentUser.phone;
                 agentCodeEl.textContent = currentUser.refCode;
                 agentLevelBadgeEl.textContent = levelLabel(currentUser.level);
+                agentWechatEl.value = currentUser.wechat || "";
                 promoLinkEl.value = `${SITE_BASE}/index.html?ref=${currentUser.refCode}`;
+            };
+
+            const saveWechat = async () => {
+                if (!currentUser) {
+                    return;
+                }
+                const wechat = sanitizeWechat(agentWechatEl.value);
+                const nextUser = {
+                    ...currentUser,
+                    wechat,
+                    updatedAt: Date.now(),
+                };
+                saveWechatBtn.disabled = true;
+                setDashboardStatus("正在保存微信号...");
+                try {
+                    await kvPutJson(kvKeyUser(currentUser.phone), nextUser);
+                    currentUser = nextUser;
+                    renderUser();
+                    const activeWechat = currentUser.wechat || DEFAULT_SERVICE_WECHAT;
+                    setDashboardStatus(`微信号已保存，推广下单展示：${activeWechat}`);
+                } catch (error) {
+                    setDashboardStatus("微信号保存失败，请稍后重试。");
+                } finally {
+                    saveWechatBtn.disabled = false;
+                }
             };
 
             const computeOrderState = (order, settlementStateMap) => {
@@ -676,10 +715,16 @@
             copyLinkBtn.addEventListener("click", copyPromoLink);
             refreshOrdersBtn.addEventListener("click", refreshDashboardData);
             applySettleBtn.addEventListener("click", applySettlement);
+            saveWechatBtn.addEventListener("click", saveWechat);
             logoutBtn.addEventListener("click", logout);
             loginPasswordEl.addEventListener("keydown", (event) => {
                 if (event.key === "Enter") {
                     login();
+                }
+            });
+            agentWechatEl.addEventListener("keydown", (event) => {
+                if (event.key === "Enter") {
+                    saveWechat();
                 }
             });
 
