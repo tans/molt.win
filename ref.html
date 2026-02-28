@@ -55,7 +55,7 @@
                                 <p class="text-sm">推荐码：<span class="font-semibold" id="agent-code">-</span></p>
                                 <div class="flex flex-wrap items-center gap-2">
                                     <span class="text-sm">级别：</span>
-                                    <span class="badge badge-outline" id="agent-level-badge">普通用户（返150）</span>
+                                    <span class="badge badge-outline" id="agent-level-badge">普通用户（普通10/高配20）</span>
                                 </div>
                                 <label class="form-control">
                                     <span class="label-text text-sm">客服微信号（推广下单展示）</span>
@@ -232,8 +232,26 @@
                 return null;
             };
 
-            const levelLabel = (level) => (level === "pro" ? "高级用户（返220）" : "普通用户（返150）");
-            const getRebateFenByLevel = (level) => (level === "pro" ? 22000 : 15000);
+            const normalizeLevel = (level) => (level === "pro" ? "pro" : "normal");
+            const levelLabel = (level) =>
+                normalizeLevel(level) === "pro" ? "高级用户（普通150/高配220）" : "普通用户（普通10/高配20）";
+            const isProSkuByFee = (feeFen) => Number(feeFen) >= 100000;
+            const getRebateFenByLevelAndFee = (level, feeFen) => {
+                const normalizedLevel = normalizeLevel(level);
+                if (normalizedLevel === "pro") {
+                    return isProSkuByFee(feeFen) ? 22000 : 15000;
+                }
+                return isProSkuByFee(feeFen) ? 2000 : 1000;
+            };
+            const getOrderRebateFen = (order, fallbackLevel = "normal") => {
+                const saved = Number(order?.rebateFen);
+                if (Number.isFinite(saved) && saved > 0) {
+                    return saved;
+                }
+                const feeFen = Number(order?.originFeeFen) || Number(order?.feeFen) || 0;
+                const level = normalizeLevel(order?.refLevel || fallbackLevel);
+                return getRebateFenByLevelAndFee(level, feeFen);
+            };
 
             const sanitizePhone = (raw) => String(raw || "").trim();
             const sanitizeWechat = (raw) => String(raw || "").trim().replace(/\s+/g, "");
@@ -550,7 +568,7 @@
                             paidCount += 1;
                         }
                         const orderState = computeOrderState(order, settlementStateMap);
-                        const rebateFen = Number(order.rebateFen) || getRebateFenByLevel(order.refLevel === "pro" ? "pro" : "normal");
+                        const rebateFen = getOrderRebateFen(order, currentUser?.level);
                         if (orderState === "可结算") {
                             eligibleFen += rebateFen;
                         }
@@ -566,7 +584,7 @@
                         ordersBodyEl.innerHTML = currentOrders
                             .map((order) => {
                                 const orderState = computeOrderState(order, settlementStateMap);
-                                const rebateFen = Number(order.rebateFen) || getRebateFenByLevel(order.refLevel === "pro" ? "pro" : "normal");
+                                const rebateFen = getOrderRebateFen(order, currentUser?.level);
                                 const stateText =
                                     orderState === "冻结中"
                                         ? `冻结中（至 ${formatTime((order.paidAt || now) + TEN_DAYS_MS)}）`
@@ -684,7 +702,7 @@
                 }
 
                 const amountFen = eligibleOrders.reduce(
-                    (sum, order) => sum + (Number(order.rebateFen) || getRebateFenByLevel(order.refLevel === "pro" ? "pro" : "normal")),
+                    (sum, order) => sum + getOrderRebateFen(order, currentUser?.level),
                     0
                 );
                 const settlement = {

@@ -95,9 +95,27 @@ const formatTime = (value) => {
 
 const formatFen = (fen) => `¥${((Number(fen) || 0) / 100).toFixed(0)}`;
 
-const levelLabel = (level) => (level === 'pro' ? '高级用户' : '普通用户');
+const normalizeLevel = (level) => (level === 'pro' ? 'pro' : 'normal');
+const levelLabel = (level) =>
+  normalizeLevel(level) === 'pro' ? '高级用户(普通150/高配220)' : '普通用户(普通10/高配20)';
+const isProSkuByFee = (feeFen) => Number(feeFen) >= 100000;
+const getRebateFenByLevelAndFee = (level, feeFen) => {
+  const normalizedLevel = normalizeLevel(level);
+  if (normalizedLevel === 'pro') {
+    return isProSkuByFee(feeFen) ? 22000 : 15000;
+  }
+  return isProSkuByFee(feeFen) ? 2000 : 1000;
+};
 
-const rebateByLevel = (level) => (level === 'pro' ? 22000 : 15000);
+const orderRebateFen = (order, fallbackLevel = 'normal') => {
+  const saved = Number(order?.rebateFen);
+  if (Number.isFinite(saved) && saved > 0) {
+    return saved;
+  }
+  const feeFen = Number(order?.originFeeFen) || Number(order?.feeFen) || 0;
+  const level = normalizeLevel(order?.refLevel || fallbackLevel);
+  return getRebateFenByLevelAndFee(level, feeFen);
+};
 
 const kvGetText = async (key) => {
   const response = await fetch(kvUrl(key));
@@ -233,17 +251,17 @@ const run = async () => {
     let eligibleFen = 0;
 
     for (const order of orders) {
-      const orderRebateFen = Number(order.rebateFen) || rebateByLevel(order.refLevel === 'pro' ? 'pro' : level);
+      const currentOrderRebateFen = orderRebateFen(order, level);
       const paidAtTs = parseTimestamp(order.paidAt);
       if (paidAtTs || order.payStatus === 'paid') {
         paidOrders += 1;
       }
-      rebateTotalFen += orderRebateFen;
+      rebateTotalFen += currentOrderRebateFen;
 
       const settleState = settlementStateMap.get(order.outTradeNo);
       const isLockedBySettlement = settleState === 'pending' || settleState === 'paid';
       if (!isLockedBySettlement && paidAtTs && Date.now() - paidAtTs >= TEN_DAYS_MS) {
-        eligibleFen += orderRebateFen;
+        eligibleFen += currentOrderRebateFen;
       }
     }
 
@@ -334,7 +352,7 @@ const run = async () => {
     } else {
       console.log('  订单:');
       for (const order of item.orders) {
-        const rebateFen = Number(order.rebateFen) || rebateByLevel(order.refLevel === 'pro' ? 'pro' : item.level);
+        const rebateFen = orderRebateFen(order, item.level);
         const status = order.paidAt || order.payStatus === 'paid' ? 'paid' : (order.payStatus || 'created');
         console.log(
           `    - ${formatTime(order.createdAt)} | ${order.outTradeNo || '-'} | 金额 ${formatFen(order.feeFen)} | 返佣 ${formatFen(

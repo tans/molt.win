@@ -43,16 +43,24 @@
 
   const fenToYuan = (fen) => `¥${(fen / 100).toFixed(0)}`;
 
-  const getRebateFenByLevel = (level) => (level === "pro" ? 22000 : 15000);
+  const normalizeLevel = (level) => (level === "pro" ? "pro" : "normal");
+  const isProSkuByFee = (feeFen) => Number(feeFen) >= 100000;
+  const getRebateFenByLevelAndFee = (level, feeFen) => {
+    const normalizedLevel = normalizeLevel(level);
+    if (normalizedLevel === "pro") {
+      return isProSkuByFee(feeFen) ? 22000 : 15000;
+    }
+    return isProSkuByFee(feeFen) ? 2000 : 1000;
+  };
 
   const createRefContext = (refCode, owner = null) => {
-    const level = owner?.level === "pro" ? "pro" : "normal";
+    const level = normalizeLevel(owner?.level);
     return {
       refCode,
       ownerPhone: owner?.phone || "",
       ownerWechat: sanitizeWechat(owner?.wechat || ""),
       level,
-      rebateFen: getRebateFenByLevel(level),
+      rebateFen: getRebateFenByLevelAndFee(level, basePriceFen),
       hasOwner: Boolean(owner?.phone),
     };
   };
