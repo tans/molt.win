@@ -63,6 +63,7 @@
                                         <input class="input input-bordered input-sm flex-1 min-w-[12rem]" id="agent-wechat" type="text" placeholder="默认 tianshe00" />
                                         <button class="btn btn-primary btn-sm" id="save-wechat-btn" type="button">保存微信号</button>
                                     </div>
+                                    <p class="text-xs min-h-[1.25rem] text-base-content/60" id="wechat-save-status"></p>
                                 </label>
                             </div>
                         </div>
@@ -171,6 +172,7 @@
             const agentLevelBadgeEl = document.getElementById("agent-level-badge");
             const agentWechatEl = document.getElementById("agent-wechat");
             const saveWechatBtn = document.getElementById("save-wechat-btn");
+            const wechatSaveStatusEl = document.getElementById("wechat-save-status");
             const promoLinkEl = document.getElementById("promo-link");
             const copyLinkBtn = document.getElementById("copy-link-btn");
             const logoutBtn = document.getElementById("logout-btn");
@@ -187,6 +189,7 @@
             let currentUser = null;
             let currentOrders = [];
             let currentSettlements = [];
+            let wechatSaveStatusTimer = null;
 
             const kvKeyUser = (phone) => `${KV_PREFIX}:ref:user:${phone}`;
             const kvKeyRefCode = (code) => `${KV_PREFIX}:ref:code:${code}`;
@@ -229,10 +232,34 @@
                 return null;
             };
 
-            const levelLabel = (level) => (level === "pro" ? "高级用户（返150）" : "普通用户（返20）");
+            const levelLabel = (level) => (level === "pro" ? "高级用户（返220）" : "普通用户（返20）");
+            const getRebateFenByLevel = (level) => (level === "pro" ? 22000 : 2000);
 
             const sanitizePhone = (raw) => String(raw || "").trim();
             const sanitizeWechat = (raw) => String(raw || "").trim().replace(/\s+/g, "");
+
+            const setWechatSaveStatus = (text, tone = "muted") => {
+                if (!wechatSaveStatusEl) {
+                    return;
+                }
+                const className =
+                    tone === "success"
+                        ? "text-xs min-h-[1.25rem] text-success"
+                        : tone === "error"
+                          ? "text-xs min-h-[1.25rem] text-error"
+                          : "text-xs min-h-[1.25rem] text-base-content/60";
+                wechatSaveStatusEl.className = className;
+                wechatSaveStatusEl.textContent = text;
+                if (wechatSaveStatusTimer) {
+                    clearTimeout(wechatSaveStatusTimer);
+                    wechatSaveStatusTimer = null;
+                }
+                if ((tone === "success" || tone === "error") && text) {
+                    wechatSaveStatusTimer = window.setTimeout(() => {
+                        setWechatSaveStatus("", "muted");
+                    }, 2600);
+                }
+            };
 
             const randomRefCode = () => {
                 const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -428,14 +455,17 @@
                 };
                 saveWechatBtn.disabled = true;
                 setDashboardStatus("正在保存微信号...");
+                setWechatSaveStatus("正在保存...", "muted");
                 try {
                     await kvPutJson(kvKeyUser(currentUser.phone), nextUser);
                     currentUser = nextUser;
                     renderUser();
                     const activeWechat = currentUser.wechat || DEFAULT_SERVICE_WECHAT;
                     setDashboardStatus(`微信号已保存，推广下单展示：${activeWechat}`);
+                    setWechatSaveStatus("保存成功", "success");
                 } catch (error) {
                     setDashboardStatus("微信号保存失败，请稍后重试。");
+                    setWechatSaveStatus("保存失败，请重试", "error");
                 } finally {
                     saveWechatBtn.disabled = false;
                 }
@@ -520,7 +550,7 @@
                             paidCount += 1;
                         }
                         const orderState = computeOrderState(order, settlementStateMap);
-                        const rebateFen = Number(order.rebateFen) || (order.refLevel === "pro" ? 15000 : 2000);
+                        const rebateFen = Number(order.rebateFen) || getRebateFenByLevel(order.refLevel === "pro" ? "pro" : "normal");
                         if (orderState === "可结算") {
                             eligibleFen += rebateFen;
                         }
@@ -536,7 +566,7 @@
                         ordersBodyEl.innerHTML = currentOrders
                             .map((order) => {
                                 const orderState = computeOrderState(order, settlementStateMap);
-                                const rebateFen = Number(order.rebateFen) || (order.refLevel === "pro" ? 15000 : 2000);
+                                const rebateFen = Number(order.rebateFen) || getRebateFenByLevel(order.refLevel === "pro" ? "pro" : "normal");
                                 const stateText =
                                     orderState === "冻结中"
                                         ? `冻结中（至 ${formatTime((order.paidAt || now) + TEN_DAYS_MS)}）`
@@ -654,7 +684,7 @@
                 }
 
                 const amountFen = eligibleOrders.reduce(
-                    (sum, order) => sum + (Number(order.rebateFen) || (order.refLevel === "pro" ? 15000 : 2000)),
+                    (sum, order) => sum + (Number(order.rebateFen) || getRebateFenByLevel(order.refLevel === "pro" ? "pro" : "normal")),
                     0
                 );
                 const settlement = {

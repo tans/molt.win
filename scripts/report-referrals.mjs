@@ -97,7 +97,7 @@ const formatFen = (fen) => `¥${((Number(fen) || 0) / 100).toFixed(0)}`;
 
 const levelLabel = (level) => (level === 'pro' ? '高级用户' : '普通用户');
 
-const rebateByLevel = (level) => (level === 'pro' ? 15000 : 2000);
+const rebateByLevel = (level) => (level === 'pro' ? 22000 : 2000);
 
 const kvGetText = async (key) => {
   const response = await fetch(kvUrl(key));
