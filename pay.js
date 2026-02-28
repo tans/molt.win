@@ -43,7 +43,7 @@
 
   const fenToYuan = (fen) => `¥${(fen / 100).toFixed(0)}`;
 
-  const getRebateFenByLevel = (level) => (level === "pro" ? 22000 : 2000);
+  const getRebateFenByLevel = (level) => (level === "pro" ? 22000 : 15000);
 
   const createRefContext = (refCode, owner = null) => {
     const level = owner?.level === "pro" ? "pro" : "normal";

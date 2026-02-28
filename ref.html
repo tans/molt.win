@@ -55,7 +55,7 @@
                                 <p class="text-sm">推荐码：<span class="font-semibold" id="agent-code">-</span></p>
                                 <div class="flex flex-wrap items-center gap-2">
                                     <span class="text-sm">级别：</span>
-                                    <span class="badge badge-outline" id="agent-level-badge">普通用户（返20）</span>
+                                    <span class="badge badge-outline" id="agent-level-badge">普通用户（返150）</span>
                                 </div>
                                 <label class="form-control">
                                     <span class="label-text text-sm">客服微信号（推广下单展示）</span>
@@ -232,8 +232,8 @@
                 return null;
             };
 
-            const levelLabel = (level) => (level === "pro" ? "高级用户（返220）" : "普通用户（返20）");
-            const getRebateFenByLevel = (level) => (level === "pro" ? 22000 : 2000);
+            const levelLabel = (level) => (level === "pro" ? "高级用户（返220）" : "普通用户（返150）");
+            const getRebateFenByLevel = (level) => (level === "pro" ? 22000 : 15000);
 
             const sanitizePhone = (raw) => String(raw || "").trim();
             const sanitizeWechat = (raw) => String(raw || "").trim().replace(/\s+/g, "");
