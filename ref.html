@@ -53,6 +53,7 @@
                                 <h2 class="font-display text-lg">账户信息</h2>
                                 <p class="text-sm">手机号：<span class="font-semibold" id="agent-phone">-</span></p>
                                 <p class="text-sm">推荐码：<span class="font-semibold" id="agent-code">-</span></p>
+                                <p class="text-sm">加入时间：<span class="font-semibold" id="agent-created-at">-</span></p>
                                 <div class="flex flex-wrap items-center gap-2">
                                     <span class="text-sm">级别：</span>
                                     <span class="badge badge-outline" id="agent-level-badge">普通用户（普通10/高配20）</span>
@@ -64,6 +65,19 @@
                                         <button class="btn btn-primary btn-sm" id="save-wechat-btn" type="button">保存微信号</button>
                                     </div>
                                     <p class="text-xs min-h-[1.25rem] text-base-content/60" id="wechat-save-status"></p>
+                                </label>
+                                <div class="divider my-1"></div>
+                                <label class="form-control">
+                                    <span class="label-text text-sm">修改密码</span>
+                                    <div class="grid gap-2 sm:grid-cols-3">
+                                        <input class="input input-bordered input-sm" id="current-password" type="password" placeholder="当前密码" />
+                                        <input class="input input-bordered input-sm" id="new-password" type="password" placeholder="新密码(至少6位)" />
+                                        <input class="input input-bordered input-sm" id="confirm-password" type="password" placeholder="确认新密码" />
+                                    </div>
+                                    <div class="mt-2 flex flex-wrap items-center gap-2">
+                                        <button class="btn btn-primary btn-sm" id="change-password-btn" type="button">保存新密码</button>
+                                        <p class="text-xs min-h-[1.25rem] text-base-content/60" id="password-change-status"></p>
+                                    </div>
                                 </label>
                             </div>
                         </div>
@@ -169,10 +183,16 @@
 
             const agentPhoneEl = document.getElementById("agent-phone");
             const agentCodeEl = document.getElementById("agent-code");
+            const agentCreatedAtEl = document.getElementById("agent-created-at");
             const agentLevelBadgeEl = document.getElementById("agent-level-badge");
             const agentWechatEl = document.getElementById("agent-wechat");
             const saveWechatBtn = document.getElementById("save-wechat-btn");
             const wechatSaveStatusEl = document.getElementById("wechat-save-status");
+            const currentPasswordEl = document.getElementById("current-password");
+            const newPasswordEl = document.getElementById("new-password");
+            const confirmPasswordEl = document.getElementById("confirm-password");
+            const changePasswordBtn = document.getElementById("change-password-btn");
+            const passwordChangeStatusEl = document.getElementById("password-change-status");
             const promoLinkEl = document.getElementById("promo-link");
             const copyLinkBtn = document.getElementById("copy-link-btn");
             const logoutBtn = document.getElementById("logout-btn");
@@ -190,6 +210,7 @@
             let currentOrders = [];
             let currentSettlements = [];
             let wechatSaveStatusTimer = null;
+            let passwordChangeStatusTimer = null;
 
             const kvKeyUser = (phone) => `${KV_PREFIX}:ref:user:${phone}`;
             const kvKeyRefCode = (code) => `${KV_PREFIX}:ref:code:${code}`;
@@ -255,6 +276,8 @@
 
             const sanitizePhone = (raw) => String(raw || "").trim();
             const sanitizeWechat = (raw) => String(raw || "").trim().replace(/\s+/g, "");
+            const normalizePassword = (raw) => String(raw || "").trim();
+            const getUserPassword = (user) => normalizePassword(user?.password) || LOGIN_PASSWORD;
 
             const setWechatSaveStatus = (text, tone = "muted") => {
                 if (!wechatSaveStatusEl) {
@@ -275,6 +298,29 @@
                 if ((tone === "success" || tone === "error") && text) {
                     wechatSaveStatusTimer = window.setTimeout(() => {
                         setWechatSaveStatus("", "muted");
+                    }, 2600);
+                }
+            };
+
+            const setPasswordChangeStatus = (text, tone = "muted") => {
+                if (!passwordChangeStatusEl) {
+                    return;
+                }
+                const className =
+                    tone === "success"
+                        ? "text-xs min-h-[1.25rem] text-success"
+                        : tone === "error"
+                          ? "text-xs min-h-[1.25rem] text-error"
+                          : "text-xs min-h-[1.25rem] text-base-content/60";
+                passwordChangeStatusEl.className = className;
+                passwordChangeStatusEl.textContent = text;
+                if (passwordChangeStatusTimer) {
+                    clearTimeout(passwordChangeStatusTimer);
+                    passwordChangeStatusTimer = null;
+                }
+                if ((tone === "success" || tone === "error") && text) {
+                    passwordChangeStatusTimer = window.setTimeout(() => {
+                        setPasswordChangeStatus("", "muted");
                     }, 2600);
                 }
             };
@@ -396,6 +442,7 @@
                 }
                 user.level = user.level === "pro" ? "pro" : "normal";
                 user.wechat = sanitizeWechat(user.wechat || "");
+                user.password = normalizePassword(user.password || "");
                 return user;
             };
 
@@ -407,6 +454,7 @@
                     refCode,
                     level: "normal",
                     wechat: "",
+                    password: LOGIN_PASSWORD,
                     createdAt: now,
                     updatedAt: now,
                 };
@@ -456,6 +504,7 @@
                 }
                 agentPhoneEl.textContent = currentUser.phone;
                 agentCodeEl.textContent = currentUser.refCode;
+                agentCreatedAtEl.textContent = formatTime(currentUser.createdAt);
                 agentLevelBadgeEl.textContent = levelLabel(currentUser.level);
                 agentWechatEl.value = currentUser.wechat || "";
                 promoLinkEl.value = `${SITE_BASE}/index.html?ref=${currentUser.refCode}`;
@@ -486,6 +535,58 @@
                     setWechatSaveStatus("保存失败，请重试", "error");
                 } finally {
                     saveWechatBtn.disabled = false;
+                }
+            };
+
+            const changePassword = async () => {
+                if (!currentUser) {
+                    return;
+                }
+                const currentPassword = normalizePassword(currentPasswordEl.value);
+                const newPassword = normalizePassword(newPasswordEl.value);
+                const confirmPassword = normalizePassword(confirmPasswordEl.value);
+
+                if (!currentPassword) {
+                    setPasswordChangeStatus("请输入当前密码", "error");
+                    return;
+                }
+                if (currentPassword !== getUserPassword(currentUser)) {
+                    setPasswordChangeStatus("当前密码错误", "error");
+                    return;
+                }
+                if (newPassword.length < 6) {
+                    setPasswordChangeStatus("新密码至少 6 位", "error");
+                    return;
+                }
+                if (newPassword !== confirmPassword) {
+                    setPasswordChangeStatus("两次输入的新密码不一致", "error");
+                    return;
+                }
+                if (newPassword === currentPassword) {
+                    setPasswordChangeStatus("新密码不能与当前密码相同", "error");
+                    return;
+                }
+
+                const nextUser = {
+                    ...currentUser,
+                    password: newPassword,
+                    updatedAt: Date.now(),
+                };
+
+                changePasswordBtn.disabled = true;
+                setPasswordChangeStatus("正在保存...", "muted");
+                try {
+                    await kvPutJson(kvKeyUser(currentUser.phone), nextUser);
+                    currentUser = nextUser;
+                    currentPasswordEl.value = "";
+                    newPasswordEl.value = "";
+                    confirmPasswordEl.value = "";
+                    setPasswordChangeStatus("密码修改成功", "success");
+                    setDashboardStatus("密码已更新。");
+                } catch (error) {
+                    setPasswordChangeStatus("密码保存失败，请重试", "error");
+                } finally {
+                    changePasswordBtn.disabled = false;
                 }
             };
 
@@ -635,8 +736,8 @@
                     setLoginStatus("请输入 11 位手机号。");
                     return;
                 }
-                if (password !== LOGIN_PASSWORD) {
-                    setLoginStatus("密码错误，请使用默认密码 888888。");
+                if (!password) {
+                    setLoginStatus("请输入密码。");
                     return;
                 }
 
@@ -646,7 +747,14 @@
                 try {
                     let user = await readUser(phone);
                     if (!user) {
+                        if (password !== LOGIN_PASSWORD) {
+                            setLoginStatus("首次登录请使用默认密码 888888。");
+                            return;
+                        }
                         user = await createUser(phone);
+                    } else if (password !== getUserPassword(user)) {
+                        setLoginStatus("密码错误，请重试。");
+                        return;
                     }
                     await ensureUserIndexed(user);
                     currentUser = user;
@@ -764,6 +872,7 @@
             refreshOrdersBtn.addEventListener("click", refreshDashboardData);
             applySettleBtn.addEventListener("click", applySettlement);
             saveWechatBtn.addEventListener("click", saveWechat);
+            changePasswordBtn.addEventListener("click", changePassword);
             logoutBtn.addEventListener("click", logout);
             loginPasswordEl.addEventListener("keydown", (event) => {
                 if (event.key === "Enter") {
@@ -773,6 +882,11 @@
             agentWechatEl.addEventListener("keydown", (event) => {
                 if (event.key === "Enter") {
                     saveWechat();
+                }
+            });
+            confirmPasswordEl.addEventListener("keydown", (event) => {
+                if (event.key === "Enter") {
+                    changePassword();
                 }
             });
 
