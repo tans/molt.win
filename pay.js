@@ -4,6 +4,9 @@
   const payPanel = document.querySelector(".pay-panel");
   const salePriceEl = document.getElementById("sale-price");
   const payFeeTipEl = document.getElementById("pay-fee-tip");
+  const promoInputEl = document.getElementById("promo-code");
+  const promoApplyBtn = document.getElementById("apply-promo-button");
+  const promoCodeTipEl = document.getElementById("promo-code-tip");
 
   if (!statusEl || !payBtn || !payPanel || !salePriceEl || !payFeeTipEl) {
     return;
@@ -19,6 +22,7 @@
   const orderPrefix = (payPanel.dataset.orderPrefix || "XK").trim() || "XK";
   const defaultServiceWechat = "tianshe00";
   const serviceWechatEls = Array.from(document.querySelectorAll("[data-service-wechat]"));
+  const proPromoDiscountFen = 2000;
 
   if (!Number.isFinite(basePriceFen) || basePriceFen <= 0) {
     statusEl.textContent = "价格配置异常，请联系管理员。";
@@ -43,6 +47,15 @@
 
   const fenToYuan = (fen) => `¥${(fen / 100).toFixed(0)}`;
 
+  const setPromoTip = (text, isError = false) => {
+    if (!promoCodeTipEl) {
+      return;
+    }
+    promoCodeTipEl.textContent = text;
+    promoCodeTipEl.classList.toggle("text-error", isError);
+    promoCodeTipEl.classList.toggle("text-base-content/60", !isError);
+  };
+
   const normalizeLevel = (level) => (level === "pro" ? "pro" : "normal");
   const isProSkuByFee = (feeFen) => Number(feeFen) >= 100000;
   const getRebateFenByLevelAndFee = (level, feeFen) => {
@@ -64,6 +77,15 @@
       hasOwner: Boolean(owner?.phone),
     };
   };
+
+  const getPromoDiscountFen = () => {
+    if (activeRef?.hasOwner && activeRef.level === "pro") {
+      return proPromoDiscountFen;
+    }
+    return 0;
+  };
+
+  const getPayFeeFen = () => Math.max(basePriceFen - getPromoDiscountFen(), 0);
 
   const renderServiceWechat = () => {
     for (const el of serviceWechatEls) {
@@ -188,12 +210,48 @@
     return redirect.toString();
   };
 
-  const renderPriceState = () => {
-    salePriceEl.textContent = fenToYuan(basePriceFen);
-    payFeeTipEl.textContent = `当前支付金额：${fenToYuan(basePriceFen)}`;
+  const resolveServiceWechat = () => activeRef?.ownerWechat || defaultServiceWechat;
+
+  const renderPromoState = () => {
+    if (!promoCodeTipEl) {
+      return;
+    }
+    if (activeRef?.hasOwner && activeRef.level === "pro") {
+      setPromoTip("优惠码已生效：高级推荐人立减 20 元。");
+      return;
+    }
+    if (activeRef?.hasOwner) {
+      setPromoTip("优惠码已绑定，当前推荐人不享受 20 元优惠。");
+      return;
+    }
+    setPromoTip("填写推荐人优惠码，高级推荐人可减 20 元。");
   };
 
-  const resolveServiceWechat = () => activeRef?.ownerWechat || defaultServiceWechat;
+  const renderPriceState = () => {
+    const discountFen = getPromoDiscountFen();
+    const payFeeFen = getPayFeeFen();
+    salePriceEl.textContent = fenToYuan(payFeeFen);
+    if (discountFen > 0) {
+      payFeeTipEl.textContent = `当前支付金额：${fenToYuan(payFeeFen)}（已优惠 ${fenToYuan(discountFen)}）`;
+      return;
+    }
+    payFeeTipEl.textContent = `当前支付金额：${fenToYuan(payFeeFen)}`;
+  };
+
+  const applyActiveRef = (nextRef) => {
+    activeRef = nextRef;
+    activeServiceWechat = resolveServiceWechat();
+    renderServiceWechat();
+    renderPriceState();
+    renderPromoState();
+  };
+
+  const setPromoApplyState = (loading) => {
+    if (promoApplyBtn) {
+      promoApplyBtn.disabled = loading;
+      promoApplyBtn.textContent = loading ? "校验中..." : "应用";
+    }
+  };
 
   const resolveRefInfo = async (refCode) => {
     const ownerPhone = await kvGetText(`${kvPrefix}:ref:code:${refCode}`);
@@ -208,49 +266,70 @@
     });
   };
 
+  const applyPromoCode = async () => {
+    if (!promoInputEl) {
+      return true;
+    }
+    const promoCode = sanitizeRefCode(promoInputEl.value);
+    if (!promoCode) {
+      applyActiveRef(null);
+      localStorage.removeItem(refStorageKey);
+      return true;
+    }
+    if (activeRef?.refCode === promoCode && activeRef?.hasOwner) {
+      renderPromoState();
+      return true;
+    }
+    setPromoApplyState(true);
+    try {
+      const resolved = await resolveRefInfo(promoCode);
+      if (!resolved) {
+        setPromoTip("优惠码无效，请检查后重试。", true);
+        return false;
+      }
+      promoInputEl.value = resolved.refCode;
+      applyActiveRef(resolved);
+      localStorage.setItem(refStorageKey, resolved.refCode);
+      return true;
+    } catch (error) {
+      applyActiveRef(createRefContext(promoCode));
+      localStorage.setItem(refStorageKey, promoCode);
+      setPromoTip("优惠码校验失败，请稍后重试。", true);
+      return true;
+    } finally {
+      setPromoApplyState(false);
+    }
+  };
+
   const initRefCode = async () => {
     const fromUrl = getRefCodeFromUrl();
-    if (fromUrl) {
-      activeRef = createRefContext(fromUrl);
-      activeServiceWechat = resolveServiceWechat();
-      renderServiceWechat();
-      localStorage.setItem(refStorageKey, fromUrl);
-      renderPriceState();
-      try {
-        const resolved = await resolveRefInfo(fromUrl);
-        if (resolved) {
-          activeRef = resolved;
-        }
-      } catch (error) {
-        // 推荐归属不依赖推荐账号查询结果。
-      }
-      activeServiceWechat = resolveServiceWechat();
-      renderServiceWechat();
-      renderPriceState();
-      return;
-    }
     const fromStorage = sanitizeRefCode(localStorage.getItem(refStorageKey));
-    if (!fromStorage) {
-      activeServiceWechat = resolveServiceWechat();
-      renderServiceWechat();
-      renderPriceState();
+    const initialRefCode = fromUrl || fromStorage;
+    if (!initialRefCode) {
+      applyActiveRef(null);
       return;
     }
-    activeRef = createRefContext(fromStorage);
-    activeServiceWechat = resolveServiceWechat();
-    renderServiceWechat();
-    renderPriceState();
+    if (promoInputEl) {
+      promoInputEl.value = initialRefCode;
+    }
+    applyActiveRef(createRefContext(initialRefCode));
+    localStorage.setItem(refStorageKey, initialRefCode);
     try {
-      const resolved = await resolveRefInfo(fromStorage);
+      const resolved = await resolveRefInfo(initialRefCode);
       if (resolved) {
-        activeRef = resolved;
+        applyActiveRef(resolved);
+      } else {
+        applyActiveRef(null);
+        if (promoInputEl) {
+          promoInputEl.value = "";
+        }
+        localStorage.removeItem(refStorageKey);
+        setPromoTip("优惠码无效，请检查后重试。", true);
       }
     } catch (error) {
-      // 无网络时也保持本地推荐归属。
+      // 无网络时保持推荐码归属草稿，不阻断下单。
+      setPromoTip("网络异常，优惠码暂不可用。", true);
     }
-    activeServiceWechat = resolveServiceWechat();
-    renderServiceWechat();
-    renderPriceState();
   };
 
   const syncPaidOrderIfNeeded = async () => {
@@ -289,7 +368,29 @@
 
   renderPriceState();
   renderServiceWechat();
+  renderPromoState();
   refReadyPromise = initRefCode();
+
+  if (promoApplyBtn && promoInputEl) {
+    promoApplyBtn.addEventListener("click", async () => {
+      const ok = await applyPromoCode();
+      if (ok) {
+        setStatus("优惠码已更新。");
+      }
+    });
+    promoInputEl.addEventListener("keydown", async (event) => {
+      if (event.key !== "Enter") {
+        return;
+      }
+      event.preventDefault();
+      await applyPromoCode();
+    });
+    promoInputEl.addEventListener("input", () => {
+      if (promoCodeTipEl && !promoInputEl.value.trim()) {
+        renderPromoState();
+      }
+    });
+  }
 
   payBtn.addEventListener("click", async () => {
     if (!onepayBaseUrl) {
@@ -304,7 +405,15 @@
       if (refReadyPromise) {
         await refReadyPromise;
       }
-      const feeFen = basePriceFen;
+      if (promoInputEl) {
+        const promoOk = await applyPromoCode();
+        if (!promoOk) {
+          setStatus("优惠码无效，请检查后重试。");
+          setButtonState(false);
+          return;
+        }
+      }
+      const feeFen = getPayFeeFen();
       const outTradeNo = createOutTradeNo(activeRef?.refCode || "");
       const redirectUrl = buildRedirectUrl(outTradeNo);
       if (activeRef?.hasOwner) {
@@ -316,6 +425,7 @@
           rebateFen: activeRef.rebateFen,
           feeFen,
           originFeeFen: basePriceFen,
+          promoDiscountFen: basePriceFen - feeFen,
           createdAt: Date.now(),
           payStatus: "created",
         };

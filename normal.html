@@ -26,7 +26,9 @@
 
             <div class="relative space-y-8">
                 <div class="flex items-center justify-between gap-3">
-                    <div class="flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.3em] text-base-content/60">
+                    <div
+                        class="flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.3em] text-base-content/60"
+                    >
                         <img
                             class="h-10 w-10 rounded-2xl bg-base-100 p-2 shadow"
                             src="favicon.svg"
@@ -38,38 +40,98 @@
                 </div>
 
                 <div class="space-y-3">
-                    <h1 class="font-display text-4xl font-semibold leading-tight sm:text-5xl">普通版 · i3 8G 128G</h1>
-                    <p class="text-base text-base-content/70">预装 Windows + openclaw，微信控制，开箱即用。</p>
+                    <h1
+                        class="font-display text-4xl font-semibold leading-tight sm:text-5xl"
+                    >
+                        普通版 · i3 8G 128G
+                    </h1>
+                    <p class="text-base text-base-content/70">
+                        预装 Windows + openclaw，微信控制，开箱即用。
+                    </p>
                 </div>
 
                 <div class="flex flex-wrap items-end gap-3">
-                    <span class="font-display text-5xl text-primary" id="sale-price">¥799</span>
+                    <span
+                        class="font-display text-5xl text-primary"
+                        id="sale-price"
+                        >¥799</span
+                    >
                     <span class="badge badge-outline">普通版本</span>
                 </div>
 
-                <div class="card border border-base-300/60 bg-base-100 shadow-md">
+                <div
+                    class="card border border-base-300/60 bg-base-100 shadow-md"
+                >
                     <figure class="px-6 pt-6">
-                        <img src="product22.png" alt="普通版产品图" class="w-full rounded-2xl shadow" />
+                        <img
+                            src="product22.png"
+                            alt="普通版产品图"
+                            class="w-full rounded-2xl shadow"
+                        />
                     </figure>
                     <div class="card-body gap-4">
                         <h2 class="font-display text-lg">普通版配置</h2>
                         <ul class="space-y-2 text-sm text-base-content/70">
-                            <li class="flex justify-between"><span>处理器</span><span class="font-medium text-base-content">i3 4130 双核</span></li>
-                            <li class="flex justify-between"><span>内存</span><span class="font-medium text-base-content">8G</span></li>
-                            <li class="flex justify-between"><span>存储</span><span class="font-medium text-base-content">128G M.2 固态</span></li>
-                            <li class="flex justify-between"><span>系统</span><span class="font-medium text-base-content">Windows + openclaw</span></li>
-                            <li class="flex justify-between"><span>控制</span><span class="font-medium text-base-content">微信控制</span></li>
-                            <li class="flex justify-between"><span>客服微信</span><span class="font-medium text-base-content" data-service-wechat>tianshe00</span></li>
+                            <li class="flex justify-between">
+                                <span>处理器</span
+                                ><span class="font-medium text-base-content"
+                                    >i3 4130 双核</span
+                                >
+                            </li>
+                            <li class="flex justify-between">
+                                <span>内存</span
+                                ><span class="font-medium text-base-content"
+                                    >8G</span
+                                >
+                            </li>
+                            <li class="flex justify-between">
+                                <span>存储</span
+                                ><span class="font-medium text-base-content"
+                                    >128G M.2 固态</span
+                                >
+                            </li>
+                            <li class="flex justify-between">
+                                <span>系统</span
+                                ><span class="font-medium text-base-content"
+                                    >Windows + openclaw</span
+                                >
+                            </li>
+                            <li class="flex justify-between">
+                                <span>控制</span
+                                ><span class="font-medium text-base-content"
+                                    >微信控制</span
+                                >
+                            </li>
+                            <li class="flex justify-between">
+                                <span>客服微信</span
+                                ><span
+                                    class="font-medium text-base-content"
+                                    data-service-wechat
+                                    >tianshe00</span
+                                >
+                            </li>
                         </ul>
                     </div>
                 </div>
 
-                <section class="card border border-base-300/60 bg-base-100 shadow-md" id="order">
+                <section
+                    class="card border border-base-300/60 bg-base-100 shadow-md"
+                    id="order"
+                >
                     <div class="card-body gap-4">
                         <div class="space-y-1">
-                            <h2 class="font-display text-lg">支付并填写收货信息</h2>
-                            <p class="text-sm text-base-content/70">支付页填写称呼、手机与地址。</p>
-                            <p class="text-xs text-base-content/60" id="pay-fee-tip">当前支付金额：¥799</p>
+                            <h2 class="font-display text-lg">
+                                支付并填写收货信息
+                            </h2>
+                            <p class="text-sm text-base-content/70">
+                                支付页填写称呼、手机与地址。
+                            </p>
+                            <p
+                                class="text-xs text-base-content/60"
+                                id="pay-fee-tip"
+                            >
+                                当前支付金额：¥799
+                            </p>
                         </div>
 
                         <div
@@ -81,21 +143,54 @@
                             data-redirect-url=""
                             data-notify-url=""
                         >
+                            <div class="space-y-2">
+                                <label class="form-control">
+                                    <span class="label-text text-sm"
+                                        >优惠码</span
+                                    >
+                                    <div class="join w-full">
+                                        <input
+                                            class="input input-bordered join-item w-full"
+                                            id="promo-code"
+                                            type="text"
+                                            maxlength="24"
+                                            placeholder="填写推荐人优惠码"
+                                            autocomplete="off"
+                                        />
+                                        <button
+                                            class="btn join-item"
+                                            type="button"
+                                            id="apply-promo-button"
+                                        >
+                                            应用
+                                        </button>
+                                    </div>
+                                </label>
+                            </div>
                             <div class="flex justify-center">
-                                <button class="btn btn-primary btn-lg btn-wide" type="button" id="pay-button">
+                                <button
+                                    class="btn btn-primary btn-lg btn-wide"
+                                    type="button"
+                                    id="pay-button"
+                                >
                                     下单并去支付
                                 </button>
                             </div>
-                            <div class="min-h-[1.25rem] text-xs text-base-content/60" id="order-status" role="status"></div>
+                            <div
+                                class="min-h-[1.25rem] text-xs text-base-content/60"
+                                id="order-status"
+                                role="status"
+                            ></div>
                         </div>
-
                     </div>
                 </section>
 
                 <div class="flex justify-center gap-2 pt-2">
                     <a class="btn btn-ghost btn-sm" href="doc.html">使用文档</a>
                     <a class="btn btn-ghost btn-sm" href="ref.html">推荐后台</a>
-                    <a class="btn btn-primary btn-sm" href="index.html">返回首页</a>
+                    <a class="btn btn-primary btn-sm" href="index.html"
+                        >返回首页</a
+                    >
                 </div>
             </div>
         </main>
