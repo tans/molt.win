@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="silk">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>xiake.shop · 模型切换指南</title>
+        <meta
+            name="description"
+            content="openclaw 模型切换操作说明，包含官方命令行与 ClawOS 一键切换两种方式。"
+        />
+        <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+        <meta name="theme-color" content="#f3b7c8" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Manrope:wght@400;500;600&display=swap"
+            rel="stylesheet"
+        />
+        <link rel="stylesheet" href="styles.css" />
+    </head>
+    <body class="min-h-screen bg-base-200 font-sans text-base-content">
+        <main class="relative mx-auto w-full max-w-3xl px-4 py-12 lg:py-16">
+            <div
+                class="pointer-events-none absolute inset-x-0 -top-24 h-64 bg-gradient-to-r from-primary/35 via-secondary/20 to-accent/25 blur-3xl"
+            ></div>
+
+            <article class="relative space-y-6">
+                <header class="flex flex-wrap items-center justify-between gap-3">
+                    <img
+                        class="h-12 w-auto"
+                        src="openclaw-logo-text.png"
+                        alt="openclaw 标识"
+                    />
+                    <nav class="flex flex-wrap items-center justify-end gap-2">
+                        <a class="btn btn-ghost btn-xs" href="index.html">返回首页</a>
+                        <a class="btn btn-secondary btn-xs" href="doc.html">使用文档</a>
+                    </nav>
+                </header>
+
+                <section
+                    class="card border border-base-300/60 bg-base-100 shadow-md"
+                >
+                    <div class="card-body space-y-3">
+                        <h1 class="font-display text-2xl">切换模型（先安装）</h1>
+                        <p class="text-sm text-base-content/70">
+                            建议先确保 openclaw 与 ClawOS 已安装可用，再按下面任一方式切换模型。
+                        </p>
+                    </div>
+                </section>
+
+                <section
+                    class="card border border-base-300/60 bg-base-100 shadow-md"
+                >
+                    <div class="card-body space-y-3">
+                        <h2 class="font-display text-lg">方法一：通过官方命令行</h2>
+                        <ol class="list-decimal space-y-2 pl-5 text-sm text-base-content/70">
+                            <li>打开 openclaw 的命令行界面。</li>
+                            <li>输入以下命令并执行：</li>
+                        </ol>
+                        <div class="mockup-code text-sm">
+                            <pre><code>openclaw configure</code></pre>
+                        </div>
+                        <p class="text-sm text-base-content/70">
+                            根据命令行指引，选择模型服务商并填写 API Key，保存后即可生效。
+                        </p>
+                    </div>
+                </section>
+
+                <section
+                    class="card border border-base-300/60 bg-base-100 shadow-md"
+                >
+                    <div class="card-body space-y-3">
+                        <h2 class="font-display text-lg">方法二：通过 ClawOS 一键切换</h2>
+                        <ol class="list-decimal space-y-2 pl-5 text-sm text-base-content/70">
+                            <li>先升级 ClawOS 到 <strong>0.3.1</strong>。</li>
+                            <li>打开 ClawOS，点击「大模型」。</li>
+                            <li>根据需求填写 API Key，保存配置。</li>
+                        </ol>
+                    </div>
+                </section>
+
+                <section
+                    class="card border border-base-300/60 bg-base-100 shadow-md"
+                >
+                    <div class="card-body space-y-3">
+                        <h2 class="font-display text-lg">推荐方案</h2>
+                        <p class="text-sm text-base-content/70">
+                            推荐使用 <strong>Kimi Coding Plan</strong>，额度可控，适合每天安排定量工作并长期服务。
+                        </p>
+                        <div>
+                            <a
+                                class="btn btn-primary btn-sm"
+                                href="https://www.kimi.com/membership/pricing"
+                                target="_blank"
+                                rel="noreferrer"
+                            >
+                                查看 Kimi 会员与计费
+                            </a>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="flex justify-center gap-2 pt-2">
+                    <a class="btn btn-ghost btn-sm" href="doc.html">返回文档</a>
+                    <a class="btn btn-primary btn-sm" href="index.html">返回首页</a>
+                </div>
+            </article>
+        </main>
+    </body>
+</html>
