@@ -10,7 +10,7 @@
 
 本地openclaw访问入口：`http://127.0.0.1:18789/`
 
-本地ClawOS：`http://localhost:8080`
+ClawOS 已改为桌面版本，请从桌面应用打开。
 
 openclaw 官方入口：https://docs.openclaw.ai/
 
