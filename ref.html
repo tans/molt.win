@@ -40,7 +40,7 @@
                         </div>
                         <div class="flex flex-wrap items-center gap-3">
                             <button class="btn btn-primary" id="login-btn" type="button">登录</button>
-                            <p class="text-xs text-base-content/60">首次登录自动创建推荐账号，默认级别为普通用户。</p>
+                            <p class="text-xs text-base-content/60">首次登录自动创建推荐账号，默认级别为普通用户，默认无推荐码（请联系客服申请）。</p>
                         </div>
                         <p class="min-h-[1.25rem] text-sm text-base-content/70" id="login-status"></p>
                     </div>
@@ -173,6 +173,7 @@
             const SESSION_KEY = "xiake_ref_session_phone";
             const TEN_DAYS_MS = 10 * 24 * 60 * 60 * 1000;
             const DEFAULT_SERVICE_WECHAT = "tianshe00";
+            const NO_REF_CODE_NOTICE = `当前账号暂无推荐码，请联系微信客服 ${DEFAULT_SERVICE_WECHAT} 申请推荐码。`;
 
             const loginPanel = document.getElementById("login-panel");
             const dashboardPanel = document.getElementById("dashboard-panel");
@@ -447,11 +448,10 @@
             };
 
             const createUser = async (phone) => {
-                const refCode = await ensureUniqueCode();
                 const now = Date.now();
                 const user = {
                     phone,
-                    refCode,
+                    refCode: "",
                     level: "normal",
                     wechat: "",
                     password: LOGIN_PASSWORD,
@@ -459,10 +459,9 @@
                     updatedAt: now,
                 };
                 await kvPutJson(kvKeyUser(phone), user);
-                await kvPutText(kvKeyRefCode(refCode), phone);
                 await kvPushLine(kvKeyUsersIndex(), {
                     phone,
-                    refCode,
+                    refCode: "",
                     createdAt: now,
                     indexedAt: now,
                 });
@@ -502,12 +501,14 @@
                 if (!currentUser) {
                     return;
                 }
+                const hasRefCode = Boolean(currentUser.refCode);
                 agentPhoneEl.textContent = currentUser.phone;
-                agentCodeEl.textContent = currentUser.refCode;
+                agentCodeEl.textContent = hasRefCode ? currentUser.refCode : "暂无推荐码（请联系客服申请）";
                 agentCreatedAtEl.textContent = formatTime(currentUser.createdAt);
                 agentLevelBadgeEl.textContent = levelLabel(currentUser.level);
                 agentWechatEl.value = currentUser.wechat || "";
-                promoLinkEl.value = `${SITE_BASE}/index.html?ref=${currentUser.refCode}`;
+                promoLinkEl.value = hasRefCode ? `${SITE_BASE}/index.html?ref=${currentUser.refCode}` : "暂无推广链接，请联系客服申请推荐码";
+                copyLinkBtn.disabled = !hasRefCode;
             };
 
             const saveWechat = async () => {
@@ -610,6 +611,19 @@
 
             const refreshDashboardData = async () => {
                 if (!currentUser) {
+                    return;
+                }
+                if (!currentUser.refCode) {
+                    currentOrders = [];
+                    currentSettlements = [];
+                    statTotalOrdersEl.textContent = "0";
+                    statPaidOrdersEl.textContent = "0";
+                    statEligibleAmountEl.textContent = "¥0";
+                    ordersBodyEl.innerHTML =
+                        '<tr><td colspan="5" class="text-center text-base-content/60">暂无推荐码，请联系客服申请后查看推荐订单</td></tr>';
+                    settlesBodyEl.innerHTML =
+                        '<tr><td colspan="5" class="text-center text-base-content/60">暂无推荐码，请联系客服申请后提交结算</td></tr>';
+                    setDashboardStatus(NO_REF_CODE_NOTICE);
                     return;
                 }
                 setDashboardStatus("正在加载订单...");
@@ -771,6 +785,10 @@
             };
 
             const copyPromoLink = async () => {
+                if (!currentUser?.refCode) {
+                    setDashboardStatus(NO_REF_CODE_NOTICE);
+                    return;
+                }
                 const text = promoLinkEl.value;
                 try {
                     await navigator.clipboard.writeText(text);
@@ -783,6 +801,10 @@
 
             const applySettlement = async () => {
                 if (!currentUser) {
+                    return;
+                }
+                if (!currentUser.refCode) {
+                    setDashboardStatus(NO_REF_CODE_NOTICE);
                     return;
                 }
 
