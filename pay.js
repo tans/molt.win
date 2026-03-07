@@ -217,14 +217,14 @@
       return;
     }
     if (activeRef?.hasOwner && activeRef.level === "pro") {
-      setPromoTip("优惠码已生效：高级推荐人立减 20 元。");
+      setPromoTip("已识别为高级推荐人，优惠 20 元。");
       return;
     }
     if (activeRef?.hasOwner) {
-      setPromoTip("优惠码已绑定，当前推荐人不享受 20 元优惠。");
+      setPromoTip("已识别推荐人类型，当前无优惠。");
       return;
     }
-    setPromoTip("填写推荐人优惠码，高级推荐人可减 20 元。");
+    setPromoTip("");
   };
 
   const renderPriceState = () => {
