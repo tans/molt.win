@@ -47,6 +47,9 @@
                 </section>
 
                 <section class="hidden space-y-6" id="dashboard-panel">
+                    <div class="flex justify-end">
+                        <button class="btn btn-outline btn-sm" id="open-settings-btn" type="button">设置</button>
+                    </div>
                     <div class="grid gap-4 lg:grid-cols-2">
                         <div class="card border border-base-300/60 bg-base-100 shadow-md">
                             <div class="card-body gap-3">
@@ -58,27 +61,8 @@
                                     <span class="text-sm">级别：</span>
                                     <span class="badge badge-outline" id="agent-level-badge">普通用户（普通10/高配20）</span>
                                 </div>
-                                <label class="form-control">
-                                    <span class="label-text text-sm">客服微信号（推广下单展示）</span>
-                                    <div class="flex flex-wrap items-center gap-2">
-                                        <input class="input input-bordered input-sm flex-1 min-w-[12rem]" id="agent-wechat" type="text" placeholder="默认 tianshe00" />
-                                        <button class="btn btn-primary btn-sm" id="save-wechat-btn" type="button">保存微信号</button>
-                                    </div>
-                                    <p class="text-xs min-h-[1.25rem] text-base-content/60" id="wechat-save-status"></p>
-                                </label>
-                                <div class="divider my-1"></div>
-                                <label class="form-control">
-                                    <span class="label-text text-sm">修改密码</span>
-                                    <div class="grid gap-2 sm:grid-cols-3">
-                                        <input class="input input-bordered input-sm" id="current-password" type="password" placeholder="当前密码" />
-                                        <input class="input input-bordered input-sm" id="new-password" type="password" placeholder="新密码(至少6位)" />
-                                        <input class="input input-bordered input-sm" id="confirm-password" type="password" placeholder="确认新密码" />
-                                    </div>
-                                    <div class="mt-2 flex flex-wrap items-center gap-2">
-                                        <button class="btn btn-primary btn-sm" id="change-password-btn" type="button">保存新密码</button>
-                                        <p class="text-xs min-h-[1.25rem] text-base-content/60" id="password-change-status"></p>
-                                    </div>
-                                </label>
+                                <p class="text-sm">推广客服微信：<span class="font-semibold" id="agent-wechat-display">tianshe00</span></p>
+                                <p class="text-xs text-base-content/60">所有可编辑输入项已收纳到右上角“设置”面板。</p>
                             </div>
                         </div>
 
@@ -86,13 +70,11 @@
                             <div class="card-body gap-3">
                                 <h2 class="font-display text-lg">推广链接</h2>
                                 <p class="text-sm text-base-content/70">客户通过该链接下单可归属推荐关系。</p>
-                                <label class="form-control">
-                                    <input class="input input-bordered" id="promo-link" readonly type="text" />
-                                </label>
                                 <div class="flex items-center gap-2">
                                     <button class="btn btn-primary btn-sm" id="copy-link-btn" type="button">复制推广链接</button>
-                                    <button class="btn btn-ghost btn-sm" id="logout-btn" type="button">退出登录</button>
+                                    <button class="btn btn-ghost btn-sm" id="open-settings-btn-secondary" type="button">打开设置</button>
                                 </div>
+                                <p class="text-xs text-base-content/60" id="promo-link-preview">登录后可在设置中查看完整推广链接。</p>
                             </div>
                         </div>
                     </div>
@@ -164,6 +146,75 @@
             </div>
         </main>
 
+        <dialog class="modal" id="settings-modal">
+            <div class="modal-box max-w-2xl">
+                <div class="flex items-start justify-between gap-3">
+                    <div>
+                        <h2 class="font-display text-xl">设置</h2>
+                        <p class="text-sm text-base-content/70">账号资料、推广展示信息和密码都在这里维护。</p>
+                    </div>
+                    <form method="dialog">
+                        <button class="btn btn-ghost btn-sm" type="submit">关闭</button>
+                    </form>
+                </div>
+
+                <div class="mt-6 space-y-5">
+                    <section class="space-y-2">
+                        <h3 class="font-display text-base">账户概览</h3>
+                        <div class="grid gap-2 rounded-2xl border border-base-300/60 bg-base-200/50 p-4 text-sm sm:grid-cols-2">
+                            <p>手机号：<span class="font-semibold" id="agent-phone-modal">-</span></p>
+                            <p>推荐码：<span class="font-semibold" id="agent-code-modal">-</span></p>
+                            <p>级别：<span class="font-semibold" id="agent-level-modal">-</span></p>
+                            <p>加入时间：<span class="font-semibold" id="agent-created-at-modal">-</span></p>
+                        </div>
+                    </section>
+
+                    <section class="space-y-2">
+                        <h3 class="font-display text-base">客服微信号</h3>
+                        <label class="form-control">
+                            <span class="label-text text-sm">推广下单页展示的微信号</span>
+                            <div class="flex flex-wrap items-center gap-2">
+                                <input class="input input-bordered input-sm flex-1 min-w-[12rem]" id="agent-wechat" type="text" placeholder="默认 tianshe00" />
+                                <button class="btn btn-primary btn-sm" id="save-wechat-btn" type="button">保存微信号</button>
+                            </div>
+                            <p class="text-xs min-h-[1.25rem] text-base-content/60" id="wechat-save-status"></p>
+                        </label>
+                    </section>
+
+                    <section class="space-y-2">
+                        <h3 class="font-display text-base">修改密码</h3>
+                        <label class="form-control">
+                            <span class="label-text text-sm">请输入当前密码和新密码</span>
+                            <div class="grid gap-2 sm:grid-cols-3">
+                                <input class="input input-bordered input-sm" id="current-password" type="password" placeholder="当前密码" />
+                                <input class="input input-bordered input-sm" id="new-password" type="password" placeholder="新密码(至少6位)" />
+                                <input class="input input-bordered input-sm" id="confirm-password" type="password" placeholder="确认新密码" />
+                            </div>
+                            <div class="mt-2 flex flex-wrap items-center gap-2">
+                                <button class="btn btn-primary btn-sm" id="change-password-btn" type="button">保存新密码</button>
+                                <p class="text-xs min-h-[1.25rem] text-base-content/60" id="password-change-status"></p>
+                            </div>
+                        </label>
+                    </section>
+
+                    <section class="space-y-2">
+                        <h3 class="font-display text-base">推广链接</h3>
+                        <label class="form-control">
+                            <span class="label-text text-sm">客户通过该链接下单可归属推荐关系</span>
+                            <input class="input input-bordered" id="promo-link" readonly type="text" />
+                        </label>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <button class="btn btn-primary btn-sm" id="copy-link-btn-modal" type="button">复制推广链接</button>
+                            <button class="btn btn-ghost btn-sm" id="logout-btn" type="button">退出登录</button>
+                        </div>
+                    </section>
+                </div>
+            </div>
+            <form class="modal-backdrop" method="dialog">
+                <button type="submit">close</button>
+            </form>
+        </dialog>
+
         <script>
             const KV_BASE = "https://kv.minapp.xin";
             const ONEPAY_BASE = "https://onepay.minapp.xin";
@@ -181,11 +232,19 @@
             const loginPasswordEl = document.getElementById("login-password");
             const loginBtn = document.getElementById("login-btn");
             const loginStatusEl = document.getElementById("login-status");
+            const settingsModal = document.getElementById("settings-modal");
+            const openSettingsBtn = document.getElementById("open-settings-btn");
+            const openSettingsBtnSecondary = document.getElementById("open-settings-btn-secondary");
 
             const agentPhoneEl = document.getElementById("agent-phone");
             const agentCodeEl = document.getElementById("agent-code");
             const agentCreatedAtEl = document.getElementById("agent-created-at");
             const agentLevelBadgeEl = document.getElementById("agent-level-badge");
+            const agentWechatDisplayEl = document.getElementById("agent-wechat-display");
+            const agentPhoneModalEl = document.getElementById("agent-phone-modal");
+            const agentCodeModalEl = document.getElementById("agent-code-modal");
+            const agentLevelModalEl = document.getElementById("agent-level-modal");
+            const agentCreatedAtModalEl = document.getElementById("agent-created-at-modal");
             const agentWechatEl = document.getElementById("agent-wechat");
             const saveWechatBtn = document.getElementById("save-wechat-btn");
             const wechatSaveStatusEl = document.getElementById("wechat-save-status");
@@ -195,7 +254,9 @@
             const changePasswordBtn = document.getElementById("change-password-btn");
             const passwordChangeStatusEl = document.getElementById("password-change-status");
             const promoLinkEl = document.getElementById("promo-link");
+            const promoLinkPreviewEl = document.getElementById("promo-link-preview");
             const copyLinkBtn = document.getElementById("copy-link-btn");
+            const copyLinkBtnModal = document.getElementById("copy-link-btn-modal");
             const logoutBtn = document.getElementById("logout-btn");
             const refreshOrdersBtn = document.getElementById("refresh-orders-btn");
             const applySettleBtn = document.getElementById("apply-settle-btn");
@@ -506,9 +567,16 @@
                 agentCodeEl.textContent = hasRefCode ? currentUser.refCode : "暂无推荐码（请联系客服申请）";
                 agentCreatedAtEl.textContent = formatTime(currentUser.createdAt);
                 agentLevelBadgeEl.textContent = levelLabel(currentUser.level);
+                agentWechatDisplayEl.textContent = currentUser.wechat || DEFAULT_SERVICE_WECHAT;
+                agentPhoneModalEl.textContent = currentUser.phone;
+                agentCodeModalEl.textContent = hasRefCode ? currentUser.refCode : "暂无推荐码（请联系客服申请）";
+                agentLevelModalEl.textContent = levelLabel(currentUser.level);
+                agentCreatedAtModalEl.textContent = formatTime(currentUser.createdAt);
                 agentWechatEl.value = currentUser.wechat || "";
                 promoLinkEl.value = hasRefCode ? `${SITE_BASE}/index.html?ref=${currentUser.refCode}` : "暂无推广链接，请联系客服申请推荐码";
+                promoLinkPreviewEl.textContent = hasRefCode ? `${SITE_BASE}/index.html?ref=${currentUser.refCode}` : "暂无推广链接，请联系客服申请推荐码";
                 copyLinkBtn.disabled = !hasRefCode;
+                copyLinkBtnModal.disabled = !hasRefCode;
             };
 
             const saveWechat = async () => {
@@ -864,8 +932,17 @@
                 currentOrders = [];
                 currentSettlements = [];
                 localStorage.removeItem(SESSION_KEY);
+                settingsModal?.close();
                 setAuthState(false);
                 setDashboardStatus("");
+            };
+
+            const openSettings = () => {
+                if (!currentUser || !settingsModal) {
+                    return;
+                }
+                renderUser();
+                settingsModal.showModal();
             };
 
             const tryAutoLogin = async () => {
@@ -891,11 +968,14 @@
 
             loginBtn.addEventListener("click", login);
             copyLinkBtn.addEventListener("click", copyPromoLink);
+            copyLinkBtnModal.addEventListener("click", copyPromoLink);
             refreshOrdersBtn.addEventListener("click", refreshDashboardData);
             applySettleBtn.addEventListener("click", applySettlement);
             saveWechatBtn.addEventListener("click", saveWechat);
             changePasswordBtn.addEventListener("click", changePassword);
             logoutBtn.addEventListener("click", logout);
+            openSettingsBtn.addEventListener("click", openSettings);
+            openSettingsBtnSecondary.addEventListener("click", openSettings);
             loginPasswordEl.addEventListener("keydown", (event) => {
                 if (event.key === "Enter") {
                     login();
