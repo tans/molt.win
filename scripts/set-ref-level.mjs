@@ -46,7 +46,20 @@ if (typeof fetch !== 'function') {
 }
 
 const userKey = `${prefix}:ref:user:${phone}`;
+const usersIndexKey = `${prefix}:ref:users`;
+const userIndexedFlagKey = `${prefix}:ref:user-indexed:${phone}`;
+const refCodeKey = (code) => `${prefix}:ref:code:${code}`;
 const userUrl = `${kvBase}/kv/${encodeURIComponent(userKey)}`;
+const kvUrl = (key) => `${kvBase}/kv/${encodeURIComponent(key)}`;
+
+const randomRefCode = () => {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let code = '';
+  for (let i = 0; i < 6; i += 1) {
+    code += chars[Math.floor(Math.random() * chars.length)];
+  }
+  return code;
+};
 
 const readUser = async () => {
   const res = await fetch(userUrl);
@@ -78,6 +91,50 @@ const writeUser = async (user) => {
   }
 };
 
+const kvGetText = async (key) => {
+  const res = await fetch(kvUrl(key));
+  if (res.status === 404) {
+    return null;
+  }
+  if (!res.ok) {
+    throw new Error(`KV GET failed: ${res.status} (${key})`);
+  }
+  return (await res.text()).trim();
+};
+
+const kvPutText = async (key, text, contentType = 'text/plain;charset=UTF-8') => {
+  const res = await fetch(kvUrl(key), {
+    method: 'PUT',
+    headers: { 'Content-Type': contentType },
+    body: text,
+  });
+  if (!res.ok) {
+    throw new Error(`KV PUT failed: ${res.status} (${key})`);
+  }
+};
+
+const kvPushLine = async (key, payload) => {
+  const res = await fetch(`${kvUrl(key)}/push`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
+    body: `${JSON.stringify(payload)}\n`,
+  });
+  if (!res.ok) {
+    throw new Error(`KV PUSH failed: ${res.status} (${key})`);
+  }
+};
+
+const ensureUniqueCode = async () => {
+  for (let i = 0; i < 12; i += 1) {
+    const code = randomRefCode();
+    const existing = await kvGetText(refCodeKey(code));
+    if (!existing) {
+      return code;
+    }
+  }
+  throw new Error('Failed to generate unique ref code');
+};
+
 const run = async () => {
   const user = await readUser();
   if (!user) {
@@ -88,10 +145,28 @@ const run = async () => {
   user.level = level;
   user.updatedAt = Date.now();
 
+  let assignedRefCode = '';
+  if (level === 'pro' && !String(user.refCode || '').trim()) {
+    const code = await ensureUniqueCode();
+    user.refCode = code;
+    assignedRefCode = code;
+    await kvPutText(refCodeKey(code), phone);
+    await kvPushLine(usersIndexKey, {
+      phone,
+      refCode: code,
+      createdAt: user.createdAt || user.updatedAt,
+      indexedAt: user.updatedAt,
+    });
+    await kvPutText(userIndexedFlagKey, '1');
+  }
+
   await writeUser(user);
 
   console.log(`OK: ${phone} level ${oldLevel} -> ${level}`);
   console.log(`KV key: ${userKey}`);
+  if (assignedRefCode) {
+    console.log(`Assigned refCode: ${assignedRefCode}`);
+  }
 };
 
 run().catch((err) => {

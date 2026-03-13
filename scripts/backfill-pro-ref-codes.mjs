@@ -3,19 +3,17 @@
 const usage = () => {
   console.log(
     [
-      'Usage: node scripts/upgrade-all-referrers.mjs [options]',
+      'Usage: node scripts/backfill-pro-ref-codes.mjs [options]',
       '',
       'Options:',
       '  --kv-base=<url>      KV base URL (default: https://kv.minapp.xin)',
       '  --prefix=<name>      KV prefix (default: xiake)',
-      '  --level=<normal|pro> Target level (default: pro)',
       '  --dry-run            Preview only, do not write',
       '  -h, --help           Show help',
       '',
       'Examples:',
-      '  node scripts/upgrade-all-referrers.mjs',
-      '  node scripts/upgrade-all-referrers.mjs --dry-run',
-      '  node scripts/upgrade-all-referrers.mjs --level=pro',
+      '  node scripts/backfill-pro-ref-codes.mjs',
+      '  node scripts/backfill-pro-ref-codes.mjs --dry-run',
     ].join('\n')
   );
 };
@@ -34,7 +32,6 @@ if (typeof fetch !== 'function') {
 const options = {
   kvBase: 'https://kv.minapp.xin',
   prefix: 'xiake',
-  level: 'pro',
   dryRun: false,
 };
 
@@ -53,8 +50,6 @@ for (const arg of args) {
     options.kvBase = value || options.kvBase;
   } else if (key === 'prefix') {
     options.prefix = value || options.prefix;
-  } else if (key === 'level') {
-    options.level = value || options.level;
   } else {
     console.error(`Unknown option: --${key}`);
     usage();
@@ -63,13 +58,7 @@ for (const arg of args) {
 }
 
 options.kvBase = options.kvBase.replace(/\/$/, '');
-options.level = options.level === 'pro' ? 'pro' : options.level === 'normal' ? 'normal' : '';
-if (!options.level) {
-  console.error('Invalid --level, must be normal or pro');
-  process.exit(1);
-}
 
-const normalizeLevel = (level) => (level === 'pro' ? 'pro' : 'normal');
 const usersIndexKey = `${options.prefix}:ref:users`;
 const userKey = (phone) => `${options.prefix}:ref:user:${phone}`;
 const userIndexedFlagKey = (phone) => `${options.prefix}:ref:user-indexed:${phone}`;
@@ -190,17 +179,17 @@ const run = async () => {
     return;
   }
 
+  let scanned = 0;
   let updated = 0;
-  let unchanged = 0;
+  let skipped = 0;
   let missing = 0;
   let failed = 0;
-  let codeAssigned = 0;
 
   console.log(`Mode: ${options.dryRun ? 'dry-run' : 'apply'}`);
-  console.log(`Target level: ${options.level}`);
   console.log(`Found recommenders: ${phones.length}`);
 
   for (const phone of phones) {
+    scanned += 1;
     const key = userKey(phone);
     try {
       const user = await kvGetJson(key);
@@ -209,37 +198,35 @@ const run = async () => {
         console.log(`MISS ${phone} user record not found`);
         continue;
       }
-      const oldLevel = normalizeLevel(user.level);
-      if (oldLevel === options.level) {
-        unchanged += 1;
-        console.log(`SKIP ${phone} already ${oldLevel}`);
+      const level = user.level === 'pro' ? 'pro' : 'normal';
+      const refCode = String(user.refCode || '').trim();
+      if (level !== 'pro' || refCode) {
+        skipped += 1;
+        console.log(`SKIP ${phone} level=${level} refCode=${refCode || '-'}`);
         continue;
       }
+
+      const nextCode = await ensureUniqueCode();
       if (options.dryRun) {
         updated += 1;
-        const needCode = options.level === 'pro' && !String(user.refCode || '').trim();
-        console.log(`PLAN ${phone} ${oldLevel} -> ${options.level}${needCode ? ' + assign refCode' : ''}`);
+        console.log(`PLAN ${phone} assign refCode=${nextCode}`);
         continue;
       }
-      user.level = options.level;
+
+      user.refCode = nextCode;
       user.updatedAt = Date.now();
-      let assignedCode = '';
-      if (options.level === 'pro' && !String(user.refCode || '').trim()) {
-        assignedCode = await ensureUniqueCode();
-        user.refCode = assignedCode;
-        await kvPutText(refCodeKey(assignedCode), phone);
-        await kvPushLine(usersIndexKey, {
-          phone,
-          refCode: assignedCode,
-          createdAt: user.createdAt || user.updatedAt,
-          indexedAt: user.updatedAt,
-        });
-        await kvPutText(userIndexedFlagKey(phone), '1');
-        codeAssigned += 1;
-      }
+      await kvPutText(refCodeKey(nextCode), phone);
+      await kvPushLine(usersIndexKey, {
+        phone,
+        refCode: nextCode,
+        createdAt: user.createdAt || user.updatedAt,
+        indexedAt: user.updatedAt,
+      });
+      await kvPutText(userIndexedFlagKey(phone), '1');
       await kvPutJson(key, user);
+
       updated += 1;
-      console.log(`OK   ${phone} ${oldLevel} -> ${options.level}${assignedCode ? ` refCode=${assignedCode}` : ''}`);
+      console.log(`OK   ${phone} refCode=${nextCode}`);
     } catch (error) {
       failed += 1;
       console.log(`ERR  ${phone} ${error.message}`);
@@ -247,9 +234,9 @@ const run = async () => {
   }
 
   console.log('\nSummary');
+  console.log(`scanned:   ${scanned}`);
   console.log(`updated:   ${updated}`);
-  console.log(`codeAdded: ${codeAssigned}`);
-  console.log(`unchanged: ${unchanged}`);
+  console.log(`skipped:   ${skipped}`);
   console.log(`missing:   ${missing}`);
   console.log(`failed:    ${failed}`);
 
