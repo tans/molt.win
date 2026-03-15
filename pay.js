@@ -17,7 +17,7 @@
   const kvPrefix = "xiake";
   const refStorageKey = "xiake_ref_code";
   const basePriceFen = Number(payPanel.dataset.basePriceFen || 0);
-  const productTitle = payPanel.dataset.productTitle || "虾壳 2.0 小主机";
+  const productTitle = payPanel.dataset.productTitle || "虾壳 3.0 小主机";
   const notifyUrl = (payPanel.dataset.notifyUrl || "").trim();
   const orderPrefix = (payPanel.dataset.orderPrefix || "XK").trim() || "XK";
   const defaultServiceWechat = "tianshe00";

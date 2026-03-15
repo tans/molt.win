@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="silk">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>xiake.shop · 虾壳 3.0 DDR4 4G 128G</title>
+        <meta
+            name="description"
+            content="xiake.shop 虾壳 3.0，DDR4 4G 内存，128G 硬盘，无风扇散热，低能耗。"
+        />
+        <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+        <meta name="theme-color" content="#f3b7c8" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Manrope:wght@400;500;600&display=swap"
+            rel="stylesheet"
+        />
+        <link rel="stylesheet" href="styles.css" />
+    </head>
+    <body class="min-h-screen bg-base-200 font-sans text-base-content">
+        <main class="relative mx-auto w-full max-w-3xl px-4 py-12 lg:py-16">
+            <div
+                class="pointer-events-none absolute inset-x-0 -top-24 h-64 bg-gradient-to-r from-primary/35 via-secondary/20 to-accent/25 blur-3xl"
+            ></div>
+
+            <div class="relative space-y-8">
+                <div class="flex items-center justify-between gap-3">
+                    <div
+                        class="flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.3em] text-base-content/60"
+                    >
+                        <img
+                            class="h-10 w-10 rounded-2xl bg-base-100 p-2 shadow"
+                            src="favicon.svg"
+                            alt="xiake.shop logo"
+                        />
+                        <span>xiake.shop｜虾壳商店</span>
+                    </div>
+                    <a class="btn btn-primary" href="index.html">返回首页</a>
+                </div>
+
+                <div class="space-y-3">
+                    <h1
+                        class="font-display text-4xl font-semibold leading-tight sm:text-5xl"
+                    >
+                        虾壳 3.0 · DDR4 4G 128G
+                    </h1>
+                    <p class="text-base text-base-content/70">
+                        无风扇散热，低能耗，适合 7x24 小时稳定运行。
+                    </p>
+                </div>
+
+                <div class="flex flex-wrap items-end gap-3">
+                    <span
+                        class="font-display text-5xl text-primary"
+                        id="sale-price"
+                        >¥799</span
+                    >
+                    <span class="badge badge-outline">3.0 在售版本</span>
+                </div>
+
+                <div
+                    class="card border border-base-300/60 bg-base-100 shadow-md"
+                >
+                    <figure class="px-6 pt-6">
+                        <img
+                            src="product22.png"
+                            alt="虾壳 3.0 产品图"
+                            class="w-full rounded-2xl shadow"
+                        />
+                    </figure>
+                    <div class="card-body gap-4">
+                        <h2 class="font-display text-lg">虾壳 3.0 配置</h2>
+                        <ul class="space-y-2 text-sm text-base-content/70">
+                            <li class="flex justify-between">
+                                <span>内存</span
+                                ><span class="font-medium text-base-content"
+                                    >DDR4 4G</span
+                                >
+                            </li>
+                            <li class="flex justify-between">
+                                <span>存储</span
+                                ><span class="font-medium text-base-content"
+                                    >128G 硬盘</span
+                                >
+                            </li>
+                            <li class="flex justify-between">
+                                <span>散热</span
+                                ><span class="font-medium text-base-content"
+                                    >无风扇散热</span
+                                >
+                            </li>
+                            <li class="flex justify-between">
+                                <span>功耗</span
+                                ><span class="font-medium text-base-content"
+                                    >低能耗</span
+                                >
+                            </li>
+                            <li class="flex justify-between">
+                                <span>系统</span
+                                ><span class="font-medium text-base-content"
+                                    >Windows + openclaw</span
+                                >
+                            </li>
+                            <li class="flex justify-between">
+                                <span>控制</span
+                                ><span class="font-medium text-base-content"
+                                    >微信控制</span
+                                >
+                            </li>
+                            <li class="flex justify-between">
+                                <span>客服微信</span
+                                ><span
+                                    class="font-medium text-base-content"
+                                    data-service-wechat
+                                    >tianshe00</span
+                                >
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <section
+                    class="card border border-base-300/60 bg-base-100 shadow-md"
+                    id="order"
+                >
+                    <div class="card-body gap-4">
+                        <div class="space-y-1">
+                            <h2 class="font-display text-lg">
+                                支付并填写收货信息
+                            </h2>
+                            <p class="text-sm text-base-content/70">
+                                支付页填写称呼、手机与地址。
+                            </p>
+                            <p
+                                class="text-xs text-base-content/60"
+                                id="pay-fee-tip"
+                            >
+                                当前支付金额：¥799
+                            </p>
+                        </div>
+
+                        <div
+                            class="pay-panel"
+                            data-onepay-base="https://onepay.minapp.xin"
+                            data-base-price-fen="79900"
+                            data-product-title="虾壳 3.0 小主机"
+                            data-order-prefix="XK3"
+                            data-redirect-url=""
+                            data-notify-url=""
+                        >
+                            <div class="space-y-1">
+                                <label
+                                    class="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-base-content/60"
+                                    for="promo-code"
+                                >
+                                    <span>推荐码</span>
+                                    <input
+                                        class="input input-ghost input-xs h-7 min-h-0 w-36 rounded-none border-0 border-b border-base-300 bg-transparent px-0 text-xs focus:border-base-content/40 focus:outline-none"
+                                        id="promo-code"
+                                        type="text"
+                                        maxlength="24"
+                                        placeholder="输入推荐码"
+                                        autocomplete="off"
+                                    />
+                                    <button
+                                        class="btn btn-ghost btn-xs h-7 min-h-0 px-2 text-xs"
+                                        type="button"
+                                        id="apply-promo-button"
+                                    >
+                                        确认
+                                    </button>
+                                </label>
+                                <p
+                                    class="min-h-[1rem] text-xs text-base-content/60"
+                                    id="promo-code-tip"
+                                ></p>
+                            </div>
+                            <div class="flex justify-center">
+                                <button
+                                    class="btn btn-primary btn-lg btn-wide"
+                                    type="button"
+                                    id="pay-button"
+                                >
+                                    下单并去支付
+                                </button>
+                            </div>
+                            <div
+                                class="min-h-[1.25rem] text-xs text-base-content/60"
+                                id="order-status"
+                                role="status"
+                            ></div>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="flex justify-center gap-2 pt-2">
+                    <a class="btn btn-ghost btn-sm" href="doc.html">使用文档</a>
+                    <a class="btn btn-ghost btn-sm" href="ref.html">推荐后台</a>
+                    <a class="btn btn-primary btn-sm" href="index.html"
+                        >返回首页</a
+                    >
+                </div>
+            </div>
+        </main>
+
+        <script src="pay.js"></script>
+    </body>
+</html>
