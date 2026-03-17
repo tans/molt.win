@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>xiake.shop · 虾壳 3.0</title>
+        <title>xiake.shop | 虾壳 3.0</title>
         <meta
             name="description"
             content="xiake.shop 虾壳 3.0，DDR4 4G 内存，128G 硬盘，无风扇散热，低能耗。"
@@ -33,7 +33,7 @@
                         src="favicon.svg"
                         alt="xiake.shop logo"
                     />
-                    <span>xiake.shop｜虾壳商店</span>
+                    <span>xiake.shop 商店</span>
                 </div>
 
                 <div class="space-y-3">
@@ -43,12 +43,12 @@
                         虾壳 3.0 小主机
                     </h1>
                     <p class="text-base text-base-content/70">
-                        新版上架：DDR4 4G 内存 + 128G 硬盘，无风扇散热，低能耗。
+                        DDR4 4G 内存 + 128G 硬盘，无风扇散热，低能耗。
                     </p>
                 </div>
 
                 <section class="space-y-4">
-                    <h2 class="font-display text-2xl">当前在售</h2>
+                    <h2 class="font-display text-2xl">当前展示</h2>
                     <div
                         class="card border border-base-300/60 bg-base-100 shadow-md"
                     >
@@ -59,7 +59,7 @@
                                 class="h-48 w-full rounded-2xl bg-base-200 p-4 object-contain shadow"
                             />
                         </figure>
-                        <div class="grid gap-4 mt-4 px-6 md:grid-cols-2">
+                        <div class="mt-4 grid gap-4 px-6 md:grid-cols-2">
                             <img
                                 src="size.png"
                                 alt="虾壳 3.0 尺寸示意"
@@ -81,16 +81,13 @@
                                         DDR4 4G / 128G 硬盘 / 无风扇散热 / 低能耗
                                     </p>
                                 </div>
-                                <div class="flex items-center gap-3">
-                                    <span
-                                        class="font-display text-2xl text-primary"
-                                        >¥799</span
-                                    >
-                                    <a
-                                        class="btn btn-primary btn-sm sku-link"
-                                        href="v3.html"
-                                        >选择</a
-                                    >
+                                <div class="text-right">
+                                    <p class="text-sm text-base-content/60">
+                                        微信咨询
+                                    </p>
+                                    <p class="font-display text-lg text-primary">
+                                        tianshe00
+                                    </p>
                                 </div>
                             </div>
 
@@ -104,9 +101,9 @@
                                     </p>
                                 </div>
                                 <div class="flex items-center gap-3">
-                                    <span class="badge badge-error badge-outline"
-                                        >售罄</span
-                                    >
+                                    <span class="badge badge-error badge-outline">
+                                        售罄
+                                    </span>
                                 </div>
                             </div>
                         </div>
@@ -131,13 +128,14 @@
                                     href="https://clawos.cc"
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    >访问 clawos.cc</a
                                 >
+                                    访问 clawos.cc
+                                </a>
                             </div>
                             <figure>
                                 <img
                                     src="clawos.png"
-                                    alt="clawos 功能插图"
+                                    alt="clawos 功能截图"
                                     class="w-full rounded-2xl shadow"
                                 />
                             </figure>
@@ -147,11 +145,23 @@
                                 <li>一键升级 openclaw</li>
                                 <li>模型配置更简单</li>
                                 <li>内置技能市场</li>
-                                <li>
-                                    内置钱包，方便机器人购买互联网上的各种服务
-                                </li>
+                                <li>内置钱包，便于购买互联网服务</li>
                             </ul>
                         </div>
+                    </div>
+                </section>
+
+                <section
+                    class="card border border-base-300/60 bg-base-100 shadow-md"
+                >
+                    <div class="card-body text-center">
+                        <h2 class="font-display text-2xl">微信联系</h2>
+                        <p class="text-sm text-base-content/70">
+                            价格与购买方式请直接微信咨询。
+                        </p>
+                        <p class="mt-2 font-display text-3xl text-primary">
+                            tianshe00
+                        </p>
                     </div>
                 </section>
 
@@ -161,47 +171,5 @@
                 </div>
             </div>
         </main>
-
-        <script>
-            (() => {
-                const refStorageKey = "xiake_ref_code";
-                const sanitizeRefCode = (raw) => {
-                    if (!raw) {
-                        return null;
-                    }
-                    const code = String(raw)
-                        .trim()
-                        .toUpperCase()
-                        .replace(/[^A-Z0-9]/g, "");
-                    return code.length >= 2 && code.length <= 24 ? code : null;
-                };
-
-                const searchParams = new URLSearchParams(
-                    window.location.search,
-                );
-                const fromUrl = sanitizeRefCode(searchParams.get("ref"));
-                const fromStorage = sanitizeRefCode(
-                    localStorage.getItem(refStorageKey),
-                );
-                const refCode = fromUrl || fromStorage;
-
-                if (fromUrl) {
-                    localStorage.setItem(refStorageKey, fromUrl);
-                }
-
-                if (!refCode) {
-                    return;
-                }
-
-                document.querySelectorAll("a.sku-link").forEach((link) => {
-                    const url = new URL(
-                        link.getAttribute("href"),
-                        window.location.origin,
-                    );
-                    url.searchParams.set("ref", refCode);
-                    link.setAttribute("href", `${url.pathname}${url.search}`);
-                });
-            })();
-        </script>
     </body>
 </html>
