@@ -21,6 +21,7 @@
   const notifyUrl = (payPanel.dataset.notifyUrl || "").trim();
   const orderPrefix = (payPanel.dataset.orderPrefix || "XK").trim() || "XK";
   const defaultServiceWechat = "tianshe00";
+  const refWechatDefaultMarker = "__DEFAULT__";
   const serviceWechatEls = Array.from(document.querySelectorAll("[data-service-wechat]"));
   const proPromoDiscountFen = 2000;
 
@@ -254,6 +255,10 @@
   };
 
   const resolveRefInfo = async (refCode) => {
+    const wechatByRefCodeRaw = await kvGetText(`${kvPrefix}:ref:wechat:${refCode}`);
+    const wechatByRefCode = sanitizeWechat(
+      wechatByRefCodeRaw === refWechatDefaultMarker ? "" : wechatByRefCodeRaw || "",
+    );
     const ownerPhone = await kvGetText(`${kvPrefix}:ref:code:${refCode}`);
     if (!ownerPhone) {
       return null;
@@ -262,7 +267,7 @@
     return createRefContext(refCode, {
       phone: ownerPhone,
       level: owner?.level,
-      wechat: owner?.wechat,
+      wechat: wechatByRefCode || owner?.wechat,
     });
   };
 

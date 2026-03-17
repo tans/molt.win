@@ -276,10 +276,12 @@
 
             const kvKeyUser = (phone) => `${KV_PREFIX}:ref:user:${phone}`;
             const kvKeyRefCode = (code) => `${KV_PREFIX}:ref:code:${code}`;
+            const kvKeyRefWechat = (code) => `${KV_PREFIX}:ref:wechat:${code}`;
             const kvKeyOrders = (code) => `${KV_PREFIX}:ref:orders:${code}`;
             const kvKeySettles = (phone) => `${KV_PREFIX}:ref:settles:${phone}`;
             const kvKeyUsersIndex = () => `${KV_PREFIX}:ref:users`;
             const kvKeyUserIndexedFlag = (phone) => `${KV_PREFIX}:ref:user-indexed:${phone}`;
+            const REF_WECHAT_DEFAULT_MARKER = "__DEFAULT__";
 
             const kvUrl = (key) => `${KV_BASE}/kv/${encodeURIComponent(key)}`;
 
@@ -594,6 +596,9 @@
                 setWechatSaveStatus("正在保存...", "muted");
                 try {
                     await kvPutJson(kvKeyUser(currentUser.phone), nextUser);
+                    if (currentUser.refCode) {
+                        await kvPutText(kvKeyRefWechat(currentUser.refCode), wechat || REF_WECHAT_DEFAULT_MARKER);
+                    }
                     currentUser = nextUser;
                     renderUser();
                     const activeWechat = currentUser.wechat || DEFAULT_SERVICE_WECHAT;
