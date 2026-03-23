@@ -3,10 +3,10 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>xiake.shop | 虾壳 3.0</title>
+        <title>xiake.shop | 虾壳 2.0 / 3.0</title>
         <meta
             name="description"
-            content="xiake.shop 虾壳 3.0，DDR4 4G 内存，128G 硬盘，无风扇散热，低能耗。"
+            content="xiake.shop 虾壳 2.0 与 3.0 小主机，支持在线下单支付。"
         />
         <link rel="icon" href="favicon.svg" type="image/svg+xml" />
         <meta name="theme-color" content="#f3b7c8" />
@@ -40,15 +40,15 @@
                     <h1
                         class="font-display text-4xl font-semibold leading-tight sm:text-5xl"
                     >
-                        虾壳 3.0 小主机
+                        虾壳小主机
                     </h1>
                     <p class="text-base text-base-content/70">
-                        DDR4 4G 内存 + 128G 硬盘，无风扇散热，低能耗。
+                        2.0 与 3.0 均已上架，全部支持在线支付。
                     </p>
                 </div>
 
                 <section class="space-y-4">
-                    <h2 class="font-display text-2xl">当前展示</h2>
+                    <h2 class="font-display text-2xl">当前在售</h2>
                     <div
                         class="card border border-base-300/60 bg-base-100 shadow-md"
                     >
@@ -62,48 +62,56 @@
                         <div class="mt-4 grid gap-4 px-6 md:grid-cols-2">
                             <img
                                 src="size.png"
-                                alt="虾壳 3.0 尺寸示意"
+                                alt="虾壳尺寸示意"
                                 class="w-full rounded-2xl shadow"
                             />
                             <img
-                                src="product22.png"
+                                src="product3.jpg"
                                 alt="虾壳 3.0 产品图"
                                 class="w-full rounded-2xl shadow"
                             />
                         </div>
-                        <div class="card-body gap-4">
+                        <div class="card-body gap-5">
                             <div
                                 class="flex items-center justify-between gap-3 border-b border-base-200/80 pb-4"
                             >
                                 <div>
-                                    <h3 class="font-display text-lg">虾壳 3.0</h3>
+                                    <h3 class="font-display text-lg">虾壳 3.0 · 标准版</h3>
                                     <p class="text-sm text-base-content/70">
                                         DDR4 4G / 128G 硬盘 / 无风扇散热 / 低能耗
                                     </p>
                                 </div>
-                                <div class="text-right">
-                                    <p class="text-sm text-base-content/60">
-                                        微信咨询
-                                    </p>
-                                    <p class="font-display text-lg text-primary">
-                                        tianshe00
-                                    </p>
+                                <div class="flex items-center gap-3">
+                                    <span class="font-display text-xl text-primary">¥899</span>
+                                    <a class="btn btn-primary btn-sm sku-link" href="v3.html">去下单</a>
                                 </div>
                             </div>
 
                             <div
-                                class="flex items-center justify-between gap-3"
+                                class="flex items-center justify-between gap-3 border-b border-base-200/80 pb-4"
                             >
                                 <div>
-                                    <h3 class="font-display text-lg">虾壳 2.0</h3>
+                                    <h3 class="font-display text-lg">虾壳 3.0 · 高配版</h3>
                                     <p class="text-sm text-base-content/70">
-                                        已下架
+                                        DDR4 8G / 256G 硬盘 / 无风扇散热 / 低能耗
                                     </p>
                                 </div>
                                 <div class="flex items-center gap-3">
-                                    <span class="badge badge-error badge-outline">
-                                        售罄
-                                    </span>
+                                    <span class="font-display text-xl text-primary">¥1499</span>
+                                    <a class="btn btn-primary btn-sm sku-link" href="v3pro.html">去下单</a>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center justify-between gap-3">
+                                <div>
+                                    <h3 class="font-display text-lg">虾壳 2.0（普通/高配）</h3>
+                                    <p class="text-sm text-base-content/70">
+                                        普通版 ¥799，高配版 ¥1399
+                                    </p>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <a class="btn btn-outline btn-sm sku-link" href="normal.html">普通版</a>
+                                    <a class="btn btn-outline btn-sm sku-link" href="pro.html">高配版</a>
                                 </div>
                             </div>
                         </div>
@@ -151,25 +159,24 @@
                     </div>
                 </section>
 
-                <section
-                    class="card border border-base-300/60 bg-base-100 shadow-md"
-                >
-                    <div class="card-body text-center">
-                        <h2 class="font-display text-2xl">微信联系</h2>
-                        <p class="text-sm text-base-content/70">
-                            价格与购买方式请直接微信咨询。
-                        </p>
-                        <p class="mt-2 font-display text-3xl text-primary">
-                            tianshe00
-                        </p>
-                    </div>
-                </section>
-
                 <div class="flex justify-center gap-2 pt-2">
                     <a class="btn btn-ghost btn-sm" href="doc.html">使用文档</a>
                     <a class="btn btn-ghost btn-sm" href="ref.html">推荐后台</a>
                 </div>
             </div>
         </main>
+
+        <script>
+            (() => {
+                const links = document.querySelectorAll('.sku-link');
+                const search = window.location.search;
+                if (!search) return;
+                links.forEach((link) => {
+                    const url = new URL(link.getAttribute('href'), window.location.origin);
+                    url.search = search;
+                    link.setAttribute('href', `${url.pathname}${url.search}`);
+                });
+            })();
+        </script>
     </body>
 </html>
