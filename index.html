@@ -3,10 +3,10 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>xiake.shop | 虾壳 2.0</title>
+        <title>xiake.shop · 虾壳小主机</title>
         <meta
             name="description"
-            content="xiake.shop 虾壳 2.0 小主机，支持在线下单支付。"
+            content="xiake.shop 虾壳小主机，i5 16G 256G，预装 Codex、openclaw、cc-switch 等软件，开箱即用。"
         />
         <link rel="icon" href="favicon.svg" type="image/svg+xml" />
         <meta name="theme-color" content="#f3b7c8" />
@@ -19,12 +19,12 @@
         <link rel="stylesheet" href="styles.css" />
     </head>
     <body class="min-h-screen bg-base-200 font-sans text-base-content">
-        <main class="relative mx-auto w-full max-w-4xl px-4 py-12 lg:py-16">
+        <main class="relative mx-auto w-full max-w-3xl px-4 py-10 lg:py-14">
             <div
                 class="pointer-events-none absolute inset-x-0 -top-24 h-64 bg-gradient-to-r from-primary/35 via-secondary/20 to-accent/25 blur-3xl"
             ></div>
 
-            <div class="relative space-y-8">
+            <div class="relative space-y-6">
                 <div
                     class="flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.3em] text-base-content/60"
                 >
@@ -33,134 +33,151 @@
                         src="favicon.svg"
                         alt="xiake.shop logo"
                     />
-                    <span>xiake.shop 商店</span>
+                    <span>xiake.shop｜虾壳商店</span>
                 </div>
 
-                <div class="space-y-3">
+                <section class="space-y-4">
                     <h1
                         class="font-display text-4xl font-semibold leading-tight sm:text-5xl"
                     >
                         虾壳小主机
                     </h1>
                     <p class="text-base text-base-content/70">
-                        2.0 已在售，支持在线支付。
+                        i5 16G 256G，预装 Codex、openclaw、cc-switch
+                        等软件，开箱即用无需翻墙注册。
                     </p>
-                </div>
+                    <div class="flex flex-wrap items-end gap-3">
+                        <span
+                            class="font-display text-5xl text-primary"
+                            id="sale-price"
+                            >¥1399</span
+                        >
+                        <span class="badge badge-outline">现货单规格</span>
+                    </div>
+                </section>
 
-                <section class="space-y-4">
-                    <h2 class="font-display text-2xl">当前在售</h2>
-                    <div
-                        class="card border border-base-300/60 bg-base-100 shadow-md"
-                    >
-                        <figure class="px-6 pt-6">
-                            <img
-                                src="openclaw-logo-text.png"
-                                alt="openclaw logo"
-                                class="h-48 w-full rounded-2xl bg-base-200 p-4 object-contain shadow"
-                            />
-                        </figure>
-                        <div class="mt-4 grid gap-4 px-6 md:grid-cols-2">
-                            <img
-                                src="product2.jpg"
-                                alt="虾壳尺寸示意"
-                                class="w-full rounded-2xl shadow"
-                            />
-                            <img
-                                src="product3.jpg"
-                                alt="虾壳产品图"
-                                class="w-full rounded-2xl shadow"
-                            />
-                        </div>
-                        <div class="card-body gap-5">
-                            <div
-                                class="flex items-center justify-between gap-3"
+                <section
+                    class="card border border-base-300/60 bg-base-100 shadow-md"
+                    id="order"
+                >
+                    <div class="card-body gap-4">
+                        <div class="space-y-1">
+                            <h2 class="font-display text-lg">
+                                支付并填写收货信息
+                            </h2>
+                            <p class="text-sm text-base-content/70">
+                                支付页填写称呼、手机与地址。
+                            </p>
+                            <p
+                                class="text-xs text-base-content/60"
+                                id="pay-fee-tip"
                             >
-                                <div>
-                                    <h3 class="font-display text-lg">
-                                        虾壳 2.0（普通/高配）
-                                    </h3>
-                                    <p class="text-sm text-base-content/70">
-                                        普通版 ¥799，高配版 ¥1399
-                                    </p>
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <a
-                                        class="btn btn-outline btn-sm sku-link"
-                                        href="normal.html"
-                                        >普通版</a
-                                    >
-                                    <a
-                                        class="btn btn-outline btn-sm sku-link"
-                                        href="pro.html"
-                                        >高配版</a
-                                    >
-                                </div>
-                            </div>
+                                当前支付金额：¥1399
+                            </p>
+                        </div>
+
+                        <div
+                            class="pay-panel"
+                            data-onepay-base="https://pay.jisuhudong.com"
+                            data-base-price-fen="139900"
+                            data-product-title="虾壳小主机"
+                            data-order-prefix="XK"
+                            data-redirect-url=""
+                            data-notify-url=""
+                        >
+                            <button
+                                class="btn btn-primary btn-lg btn-wide"
+                                type="button"
+                                id="pay-button"
+                            >
+                                下单并去支付
+                            </button>
+                            <div
+                                class="min-h-[1.25rem] text-xs text-base-content/60"
+                                id="order-status"
+                                role="status"
+                            ></div>
                         </div>
                     </div>
                 </section>
 
-                <section class="space-y-4">
-                    <h2 class="font-display text-2xl">产品特色</h2>
-
-                    <div
-                        class="card border border-base-300/60 bg-base-100 shadow-md"
-                    >
-                        <div class="card-body gap-4">
-                            <div
-                                class="flex items-center justify-between gap-3"
-                            >
-                                <h3 class="font-display text-lg">
-                                    预装 clawos - openclaw 管理升级软件
-                                </h3>
-                                <a
-                                    class="btn btn-primary btn-sm"
-                                    href="https://clawos.cc"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
+                <section
+                    class="card border border-base-300/60 bg-base-100 shadow-md"
+                >
+                    <figure class="px-6 pt-6">
+                        <img
+                            src="product22.png"
+                            alt="虾壳小主机产品图"
+                            class="w-full rounded-2xl shadow"
+                        />
+                    </figure>
+                    <div class="card-body gap-4">
+                        <h2 class="font-display text-lg">产品配置</h2>
+                        <ul class="space-y-2 text-sm text-base-content/70">
+                            <li class="flex justify-between">
+                                <span>处理器</span
+                                ><span class="font-medium text-base-content"
+                                    >i5</span
                                 >
-                                    访问 clawos.cc
-                                </a>
-                            </div>
-                            <figure>
-                                <img
-                                    src="clawos.png"
-                                    alt="clawos 功能截图"
-                                    class="w-full rounded-2xl shadow"
-                                />
-                            </figure>
-                            <ul
-                                class="list-disc space-y-2 pl-5 text-sm text-base-content/70"
-                            >
-                                <li>一键升级 openclaw</li>
-                                <li>模型配置更简单</li>
-                                <li>内置技能市场</li>
-                                <li>内置钱包，便于购买互联网服务</li>
-                            </ul>
-                        </div>
+                            </li>
+                            <li class="flex justify-between">
+                                <span>内存</span
+                                ><span class="font-medium text-base-content"
+                                    >16G</span
+                                >
+                            </li>
+                            <li class="flex justify-between">
+                                <span>存储</span
+                                ><span class="font-medium text-base-content"
+                                    >256G M.2 固态</span
+                                >
+                            </li>
+                            <li class="flex justify-between">
+                                <span>客服微信</span
+                                ><span
+                                    class="font-medium text-base-content"
+                                    data-service-wechat
+                                    >tianshe00</span
+                                >
+                            </li>
+                        </ul>
                     </div>
                 </section>
 
-                <div class="flex justify-center gap-2 pt-2">
-                    <a class="btn btn-ghost btn-sm" href="doc.html">使用文档</a>
-                </div>
+                <section
+                    class="card border border-base-300/60 bg-base-100 shadow-md"
+                >
+                    <div class="card-body gap-4">
+                        <h2 class="font-display text-lg">预装软件</h2>
+                        <ul class="list-disc space-y-2 pl-5 text-sm text-base-content/70">
+                            <li>Codex</li>
+                            <li>openclaw</li>
+                            <li>cc-switch</li>
+                            <li>常用运行环境与辅助工具</li>
+                        </ul>
+                        <p class="text-sm text-base-content/70">
+                            开箱即用，无需翻墙注册。
+                        </p>
+                    </div>
+                </section>
+
+                <section
+                    class="card border border-base-300/60 bg-base-100 shadow-md"
+                >
+                    <div class="card-body gap-3">
+                        <h2 class="font-display text-lg">客服福利</h2>
+                        <p class="text-sm text-base-content/70">
+                            加客服微信
+                            <span class="font-semibold text-base-content" data-service-wechat
+                                >tianshe00</span
+                            >
+                            领 100 美金最新顶级大模型额度，送完即止。
+                        </p>
+                    </div>
+                </section>
             </div>
         </main>
 
-        <script>
-            (() => {
-                const links = document.querySelectorAll(".sku-link");
-                const search = window.location.search;
-                if (!search) return;
-                links.forEach((link) => {
-                    const url = new URL(
-                        link.getAttribute("href"),
-                        window.location.origin,
-                    );
-                    url.search = search;
-                    link.setAttribute("href", `${url.pathname}${url.search}`);
-                });
-            })();
-        </script>
+        <script src="pay.js"></script>
     </body>
 </html>
